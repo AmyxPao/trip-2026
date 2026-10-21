@@ -2,13 +2,19 @@
 import { state, commit, uid } from './store.js';
 import { icon } from './icons.js';
 import { esc, stamp, openSheet, closeSheet, confirmTap, toast } from './ui.js';
-import { summarize, toTWD, fmtTWD, fmtJPY, fmtAmount, meShare } from './ledger.js';
+import { summarize, toTWD, fmtTWD, fmtJPY, fmtAmount, meShare, liveEntries } from './ledger.js';
+import { sync, enabled as syncOn, configure, run as runSync, schedule, statusText } from './sync.js';
 import { phase, todayDay, md, weekday } from './trip.js';
 
 const ui = { tab: 'all', stampIn: null };
 const TABS = [['all', '總帳'], ['cat', '分類'], ['date', '日期'], ['split', '分帳']];
 
 const L = () => state.ledger;
+const liveCount = () => liveEntries(L()).length;
+const now = () => new Date().toISOString();
+// 帳有異動：記下時間、標成待上傳
+const touch = (e) => { e.updatedAt = now(); e._dirty = true; return e; };
+const touchSettings = (ledger) => { ledger.settingsUpdatedAt = now(); ledger._settingsDirty = true; };
 const catName = (id) => L().categories.find((c) => c.id === id)?.name || '未分類';
 const methodName = (m) => (m === 'cash' ? '現金' : L().cards.find((c) => c.id === m)?.name || '已刪除的卡');
 const who = (p) => L().names[p] || (p === 'me' ? '我' : '旅伴');
@@ -42,7 +48,7 @@ function entryRow(e) {
 
 function settleBlock(sum) {
   const b = sum.balance;
-  const n = L().entries.length;
+  const n = liveCount();
   if (!n) return `<section class="settle empty-settle"><p class="settle-who">還沒有任何一筆帳</p><p class="settle-hint">停好車、結完帳，按右下角「記一筆」，幾秒就記完。</p></section>`;
   const settled = L().settled;
   const done = settled && settled.balance === b;
@@ -94,7 +100,7 @@ function viewSplit(sum) {
   return `<table class="split"><thead><tr><th></th><th scope="col">墊付</th><th scope="col">應負擔</th><th scope="col">差額</th></tr></thead>
     <tbody>${row('me')}${row('mate')}</tbody></table>
     <p class="split-note">應負擔＝每一筆依分攤比例算出的份額（預設對半）。差額為正的一方，要從另一方收回這個金額。</p>
-    ${L().entries.length ? `<div class="split-act">${settled && settled.balance === sum.balance
+    ${liveCount() ? `<div class="split-act">${settled && settled.balance === sum.balance
       ? `<button class="btn" data-act="unsettle">取消結清標記</button>`
       : `<button class="btn primary" data-act="settle">已經給完錢了，標記結清</button>`}</div>` : ''}`;
 }
@@ -105,7 +111,8 @@ export function renderLedger() {
   const html = `<header class="bar"><span class="bar-title">分帳</span>
       <button class="bar-act" data-act="ledger-settings">${icon('settings')}設定</button></header>
     ${settleBlock(sum)}
-    ${L().entries.length ? `<div class="seg" role="tablist">${TABS.map(([k, l]) => `<button role="tab" aria-selected="${ui.tab === k}" data-act="ledger-tab" data-tab="${k}">${l}</button>`).join('')}</div>
+    ${syncLine()}
+    ${liveCount() ? `<div class="seg" role="tablist">${TABS.map(([k, l]) => `<button role="tab" aria-selected="${ui.tab === k}" data-act="ledger-tab" data-tab="${k}">${l}</button>`).join('')}</div>
     <div class="ledger-body">${body}</div>` : ''}
     <button class="fab" data-act="new-entry">${icon('plus')}記一筆</button>`;
   return html;
@@ -117,7 +124,9 @@ export function settle(on) {
   ui.stampIn = on ? 'settled' : null;
   commit(({ ledger }) => {
     ledger.settled = on ? { at: new Date().toISOString(), balance: summarize(ledger).balance } : null;
+    touchSettings(ledger);
   });
+  schedule();
 }
 
 // ---------- 記一筆／改一筆 ----------
@@ -205,16 +214,20 @@ export function editEntry(id) {
       const becameReal = bill && !(e.billTWD > 0);
       ui.stampIn = isNew || becameReal ? next.id : null;
       commit(({ ledger }) => {
-        if (newCard) ledger.cards.push(newCard);
+        if (newCard) { ledger.cards.push(newCard); touchSettings(ledger); }
+        touch(next);
         const i = ledger.entries.findIndex((x) => x.id === next.id);
         if (i >= 0) ledger.entries[i] = next; else ledger.entries.push(next);
       });
+      schedule();
       closeSheet();
       toast(becameReal ? '已補上帳單金額，同日同卡的帳已重算' : isNew ? '記下來了' : '已儲存');
     });
     const del = d.querySelector('#del');
     if (del) confirmTap(del, () => {
-      commit(({ ledger }) => { ledger.entries = ledger.entries.filter((x) => x.id !== e.id); });
+      // 不真的刪掉：標成已刪除，其他裝置同步時才知道要拿掉
+      commit(({ ledger }) => { const x = ledger.entries.find((y) => y.id === e.id); if (x) touch(Object.assign(x, { deleted: true })); });
+      schedule();
       closeSheet();
       toast('已刪除這筆帳');
     });
@@ -224,7 +237,7 @@ export function editEntry(id) {
 // ---------- 設定：名字、匯率、分類、卡片 ----------
 export function ledgerSettings() {
   const led = L();
-  const count = (field, id) => led.entries.filter((x) => x[field] === id).length;
+  const count = (field, id) => liveEntries(led).filter((x) => x[field] === id).length;
   const catRows = led.categories.map((c) => `<li data-id="${c.id}">
       <input aria-label="分類名稱" value="${esc(c.name)}" data-rename="cat">
       <button type="button" class="icon-btn" data-del="cat" aria-label="刪除分類 ${esc(c.name)}">${icon('trash')}</button>
@@ -250,6 +263,22 @@ export function ledgerSettings() {
       <fieldset class="f full"><legend>分類</legend><ul class="manage" id="cats">${catRows}</ul>
         <div class="add-inline"><input id="new-cat" placeholder="新分類名稱，例：伴手禮"><button type="button" class="btn" id="add-cat">${icon('plus')}新增</button></div></fieldset>
       <fieldset class="f full"><legend>信用卡</legend>${led.cards.length ? `<ul class="manage" id="cards">${cardRows}</ul>` : '<p class="muted">還沒有卡片。記帳時在「付款方式」選「新增一張卡」。</p>'}</fieldset>
+      <fieldset class="f full sync-set"><legend>雲端同步（Google 試算表）</legend>
+        <p class="muted">帳會存到你的 Google 試算表，換瀏覽器或換手機都能看到同一本帳。沒有網路時記的帳，連上後自動補傳。</p>
+        <label class="f"><span>網頁應用程式網址</span><input name="syncUrl" type="url" inputmode="url" autocomplete="off" value="${esc(sync.url)}" placeholder="https://script.google.com/macros/s/…/exec"></label>
+        <label class="f"><span>密語（和同步程式裡的 SECRET 一樣）</span><input name="syncSecret" autocomplete="off" value="${esc(sync.secret)}"></label>
+        <div class="sh-actions"><button type="button" class="btn" id="sync-connect">${icon('cloud')}${syncOn() ? '儲存並同步' : '連線並同步'}</button>
+          ${syncOn() ? '<button type="button" class="link danger-link" id="sync-off">停用同步</button>' : ''}</div>
+        <p class="sync-msg" role="status">${esc(statusText())}</p>
+        <details class="how"><summary>第一次怎麼設定？</summary><ol>
+          <li>建一個新的 Google 試算表，選「擴充功能 → Apps Script」。</li>
+          <li>把同步程式整份貼上，取代原本的內容：<button type="button" class="link" id="copy-gs">複製同步程式</button></li>
+          <li>把程式第一段的 <code>SECRET</code> 改成你自己的一組密語，存檔。</li>
+          <li>按「部署 → 新增部署作業」，類型選「網頁應用程式」，執行身分選「我」、誰可以存取選「任何人」，按部署並完成授權。</li>
+          <li>複製「網頁應用程式網址」，貼到上面，填同一組密語，按「連線並同步」。</li>
+          <li>其他瀏覽器或手機：同樣貼上網址和密語就好，不用再部署。</li>
+        </ol><p class="muted">網址和密語只存在這個瀏覽器，不會放進備份檔，也不會放到網站上。</p></details>
+      </fieldset>
       <p class="form-err" role="alert" hidden></p>
       <footer class="sh-foot"><span></span><button type="submit" class="btn primary">儲存設定</button></footer>
     </form>`, (d) => {
@@ -258,7 +287,8 @@ export function ledgerSettings() {
       const inp = d.querySelector('#new-cat');
       const name = inp.value.trim();
       if (!name) { inp.focus(); return; }
-      commit(({ ledger }) => ledger.categories.push({ id: uid('k'), name }));
+      commit(({ ledger }) => { ledger.categories.push({ id: uid('k'), name }); touchSettings(ledger); });
+      schedule();
       ledgerSettings();
     });
     d.querySelectorAll('[data-del]').forEach((b) => {
@@ -270,7 +300,9 @@ export function ledgerSettings() {
         commit(({ ledger }) => {
           if (kind === 'cat') ledger.categories = ledger.categories.filter((x) => x.id !== li.dataset.id);
           else ledger.cards = ledger.cards.filter((x) => x.id !== li.dataset.id);
+          touchSettings(ledger);
         });
+        schedule();
         ledgerSettings();
       }, '確認');
     });
@@ -278,9 +310,11 @@ export function ledgerSettings() {
       const li = b.closest('li');
       const to = li.querySelector('select').value;
       commit(({ ledger }) => {
-        ledger.entries.forEach((x) => { if (x.cat === li.dataset.id) x.cat = to; });
+        ledger.entries.forEach((x) => { if (x.cat === li.dataset.id) touch(Object.assign(x, { cat: to })); });
         ledger.categories = ledger.categories.filter((x) => x.id !== li.dataset.id);
+        touchSettings(ledger);
       });
+      schedule();
       ledgerSettings();
     }));
     f.addEventListener('submit', (ev) => {
@@ -290,6 +324,7 @@ export function ledgerSettings() {
       const card = Number(f.cardRate.value);
       if (!(cash > 0 && cash < 1 && card > 0 && card < 1)) { err.textContent = '匯率要填 1 日圓換多少台幣，例如 0.22。'; err.hidden = false; return; }
       commit(({ ledger }) => {
+        touchSettings(ledger);
         ledger.names = { me: f.me.value.trim() || '我', mate: f.mate.value.trim() || '旅伴' };
         ledger.cashRate = cash;
         ledger.cardRate = card;
@@ -300,8 +335,41 @@ export function ledgerSettings() {
           if (item && inp.value.trim()) item.name = inp.value.trim();
         });
       });
+      schedule();
       closeSheet();
       toast('設定已儲存');
     });
+    const msg = d.querySelector('.sync-msg');
+    d.querySelector('#sync-connect').addEventListener('click', async () => {
+      const url = f.syncUrl.value.trim();
+      const secret = f.syncSecret.value.trim();
+      if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) { msg.textContent = '網址要是 Apps Script 的「網頁應用程式網址」，開頭是 https://script.google.com/macros/s/'; return; }
+      if (!secret) { msg.textContent = '請填密語，要和同步程式裡的 SECRET 一樣。'; f.syncSecret.focus(); return; }
+      configure(url, secret);
+      msg.textContent = '連線中…';
+      await runSync();
+      msg.textContent = sync.status === 'ok' ? `連線成功，${statusText()}` : statusText();
+    });
+    d.querySelector('#sync-off')?.addEventListener('click', () => {
+      configure('', '');
+      toast('已停用雲端同步；這個瀏覽器裡的帳都還在');
+      ledgerSettings();
+    });
+    d.querySelector('#copy-gs').addEventListener('click', async (ev) => {
+      try {
+        const code = await (await fetch('sync/ledger-sync.gs')).text();
+        await navigator.clipboard.writeText(code);
+        ev.target.textContent = '已複製';
+      } catch {
+        window.open('sync/ledger-sync.gs', '_blank');
+      }
+    });
   });
+}
+
+// 分帳頁頂部的同步狀態
+function syncLine() {
+  if (!syncOn()) return '';
+  return `<div class="sync-line is-${sync.status}">${icon('cloud')}<span>${esc(statusText())}</span>
+    <button class="link" data-act="sync-now" ${sync.status === 'syncing' ? 'disabled' : ''}>立即同步</button></div>`;
 }

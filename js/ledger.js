@@ -7,7 +7,7 @@ function cardDayRate(ledger, date, method) {
   let jpy = 0;
   let twd = 0;
   for (const e of ledger.entries) {
-    if (e.date === date && e.method === method && e.currency === 'JPY' && e.billTWD > 0) {
+    if (!e.deleted && e.date === date && e.method === method && e.currency === 'JPY' && e.billTWD > 0) {
       jpy += e.amount;
       twd += e.billTWD;
     }
@@ -43,6 +43,7 @@ export function summarize(ledger) {
     byCat: new Map(), byDate: new Map(),
   };
   for (const e of ledger.entries) {
+    if (e.deleted) continue;
     const { twd, basis } = toTWD(ledger, e);
     if (e.currency === 'JPY') out.jpy += e.amount; else out.twdNative += e.amount;
     out.total += twd;
@@ -61,6 +62,8 @@ export function summarize(ledger) {
   out.balance = Math.round(out.paid.me - out.owe.me);
   return out;
 }
+
+export const liveEntries = (ledger) => ledger.entries.filter((e) => !e.deleted);
 
 export const fmtTWD = (n) => 'NT$ ' + Math.round(n).toLocaleString('zh-TW');
 export const fmtJPY = (n) => '¥' + Math.round(n).toLocaleString('ja-JP');

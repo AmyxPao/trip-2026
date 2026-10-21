@@ -7,6 +7,7 @@ import {
 } from './view-trip.js';
 import { renderLedger, afterLedger, setLedgerTab, editEntry, ledgerSettings, settle } from './view-ledger.js';
 import { renderMap, renderList, toggleCheck, importFile, confirmReset } from './view-misc.js';
+import { enabled as syncOn, run as runSync, onSync } from './sync.js';
 
 const TABS = [
   ['overview', '#/', '總覽', 'overview'],
@@ -84,6 +85,7 @@ function onClick(e) {
     case 'ledger-settings': ledgerSettings(); break;
     case 'settle': settle(true); break;
     case 'unsettle': settle(false); break;
+    case 'sync-now': runSync(); break;
     default: return;
   }
 }
@@ -110,7 +112,9 @@ async function start() {
   render();
   subscribe(render);
   window.addEventListener('hashchange', () => { closeSheet(); render(); });
-  window.addEventListener('online', syncOnline);
+  window.addEventListener('online', () => { syncOnline(); runSync(); });
+  onSync(() => { if (main().dataset.view === 'ledger' && !document.getElementById('sheet').open) render(); });
+  if (syncOn()) runSync();
   window.addEventListener('offline', syncOnline);
   document.addEventListener('click', onClick);
   document.addEventListener('change', onChange);
