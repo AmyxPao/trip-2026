@@ -120,7 +120,7 @@ export function renderDay(n, { isToday = false } = {}) {
   const html = `
   <header class="bar">
     <a class="icon-btn" href="#/" aria-label="回總覽">${icon('back')}</a>
-    <span class="bar-title">Day <b class="num">${n}</b></span>
+    <span class="bar-title">DAY <b class="num">${n}</b></span>
     <button class="bar-act ${ui.editing ? 'on' : ''}" data-act="toggle-edit">${ui.editing ? '完成' : `${icon('edit')}編輯`}</button>
   </header>
   ${banner}
@@ -133,7 +133,7 @@ export function renderDay(n, { isToday = false } = {}) {
   </section>
   <ol class="timeline ${ui.editing ? 'editing' : ''}" data-day="${n}">${list}</ol>
   ${ui.editing ? `<div class="add-row"><button class="btn" data-act="add-stop" data-day="${n}">${icon('plus')}新增一站</button></div>` : ''}
-  ${!ui.editing ? `<nav class="day-nav">${n > 1 ? `<a href="#/day/${n - 1}">${icon('back')}Day ${n - 1}</a>` : '<span></span>'}${n < trip.days.length ? `<a href="#/day/${n + 1}">Day ${n + 1}${icon('next')}</a>` : ''}</nav>` : ''}`;
+  ${!ui.editing ? `<nav class="day-nav">${n > 1 ? `<a href="#/day/${n - 1}">${icon('back')}DAY ${n - 1}</a>` : '<span></span>'}${n < trip.days.length ? `<a href="#/day/${n + 1}">DAY ${n + 1}${icon('next')}</a>` : ''}</nav>` : ''}`;
   return html;
 }
 
@@ -164,7 +164,7 @@ export function openStop(id) {
   openSheet(`
     <header class="sh-head">
       <div><h2>${esc(s.name.replace(/^★\s*/, ''))}</h2>${s.ja ? `<p class="sh-ja" lang="ja">${esc(s.ja)}</p>` : ''}
-      <p class="sh-meta num">Day ${s.day} · ${esc(time)} · ${esc(s.type)}</p></div>
+      <p class="sh-meta num">DAY ${s.day} · ${esc(time)} · ${esc(s.type)}</p></div>
       <span class="sh-stamp">${st.ch ? stamp(st.ch, s.status, { size: 58, seed: s.id, label: st.label }) : ''}</span>
     </header>
     <div class="sh-actions">
@@ -204,7 +204,7 @@ export function editStop(id, newForDay) {
       <input type="radio" name="status" value="${k}" ${s.status === k ? 'checked' : ''}>
       <span>${v.ch ? stamp(v.ch, k, { size: 30, seed: k }) : '<i class="st-none"></i>'}${v.label}</span></label>`).join('');
   openSheet(`
-    <header class="sh-head"><div><h2>${isNew ? `新增一站` : '編輯這一站'}</h2><p class="sh-meta">Day ${s.day}${isNew ? '' : ` · ${esc(s.name.replace(/^★\s*/, ''))}`}</p></div>
+    <header class="sh-head"><div><h2>${isNew ? `新增一站` : '編輯這一站'}</h2><p class="sh-meta">DAY ${s.day}${isNew ? '' : ` · ${esc(s.name.replace(/^★\s*/, ''))}`}</p></div>
       <button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
     <form class="form" id="stop-form" novalidate>
       <label class="f full"><span>項目名稱</span><input name="name" required value="${esc(s.name)}" placeholder="例：午餐：味処古川"></label>
@@ -214,7 +214,7 @@ export function editStop(id, newForDay) {
       </div>
       <div class="f-row">
         <label class="f"><span>類型</span><select name="type">${TYPES.map((t) => `<option ${t === s.type ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-        <label class="f"><span>哪一天</span><select name="day">${trip.days.map((d) => `<option value="${d.n}" ${d.n === s.day ? 'selected' : ''}>Day ${d.n}（${md(d.date)}）</option>`).join('')}</select></label>
+        <label class="f"><span>哪一天</span><select name="day">${trip.days.map((d) => `<option value="${d.n}" ${d.n === s.day ? 'selected' : ''}>DAY ${d.n}（${md(d.date)}）</option>`).join('')}</select></label>
       </div>
       <fieldset class="f full"><legend>查證狀態</legend><div class="st-opts">${statusRadios}</div></fieldset>
       ${FIELDS.map(([k, l]) => `<label class="f full"><span>${l}</span><input name="${k}" value="${esc(s[k])}"></label>`).join('')}

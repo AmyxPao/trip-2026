@@ -14,8 +14,8 @@ export function renderMap() {
   const { trip } = state;
   const figs = trip.maps.map((m) => {
     const d = m.day ? trip.days.find((x) => x.n === m.day) : null;
-    const cap = d ? `<b>Day <span class="num">${d.n}</span></b> ${md(d.date)}（${weekday(d.date)}）${esc(d.title)}` : '<b>全程總覽</b>';
-    return `<figure class="map-fig"><a href="${esc(m.src)}" target="_blank" rel="noopener"><img src="${esc(m.src)}" alt="${d ? `Day ${d.n} 路線圖` : '全程路線總覽圖'}" loading="lazy" width="1600" height="1200"></a>
+    const cap = d ? `<b>DAY <span class="num">${d.n}</span></b> ${md(d.date)}（${weekday(d.date)}）${esc(d.title)}` : '<b>全程總覽</b>';
+    return `<figure class="map-fig"><a href="${esc(m.src)}" target="_blank" rel="noopener"><img src="${esc(m.src)}" alt="${d ? `DAY ${d.n} 路線圖` : '全程路線總覽圖'}" loading="lazy" width="1600" height="1200"></a>
       <figcaption>${cap}${d ? `<a class="link" href="#/day/${d.n}">看行程${icon('next')}</a>` : ''}</figcaption></figure>`;
   }).join('');
   return `<header class="bar"><span class="bar-title">地圖</span></header>

@@ -22,7 +22,7 @@ const who = (p) => L().names[p] || (p === 'me' ? '我' : '旅伴');
 function dateLabel(d) {
   if (d === 'pre') return '出發前';
   const day = state.trip.days.find((x) => x.date === d);
-  return day ? `Day ${day.n} · ${md(d)}（${weekday(d)}）` : md(d);
+  return day ? `DAY ${day.n} · ${md(d)}（${weekday(d)}）` : md(d);
 }
 function dateOrder(d) { return d === 'pre' ? '0' : d; }
 
