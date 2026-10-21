@@ -1,63 +1,35 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>2026 北陸冬遊</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap">
-<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>北陸自駕 8 日</title>
+<meta name="description" content="2026/11/26–12/3 北陸自駕：高山・白川鄉・金澤的行程與分帳">
+<meta name="theme-color" content="#1d2f5e">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preload" href="fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-
-<div class="wrap">
-  <header class="hero">
-    <div class="kicker">Hokuriku · Winter 2026</div>
-    <h1 id="title">北陸 飛驒・金澤 八日</h1>
-    <div class="sub" id="sub"></div>
-    <div class="rule"></div>
-    <div class="journey" id="journey"></div>
-  </header>
-
-  <nav class="tabs" role="tablist" aria-label="分頁">
-    <button role="tab" id="t-plan" data-v="plan">行程<span>Itinerary</span></button>
-    <button role="tab" id="t-map" data-v="map">地圖<span>Map</span></button>
-    <button role="tab" id="t-stay" data-v="stay">住宿<span>Stay</span></button>
-    <button role="tab" id="t-prep" data-v="prep">出發前<span>Notes</span></button>
-  </nav>
-
-  <div class="days" id="days" aria-label="選擇日期"></div>
-
-  <section class="view" id="v-plan"></section>
-  <section class="view" id="v-map">
-    <div class="mapbar"><div class="seg"><button id="mv-day" aria-pressed="true">當天路線</button><button id="mv-all" aria-pressed="false">全程總覽</button></div><span class="src" id="mapday"></span></div>
-    <div class="mapframe" id="mapsvg"></div>
-    <div class="key"><span><i class="cr"></i>開車路線</span><span><i class="wk"></i>步行</span><span><i></i>高速公路</span><span><i class="r2"></i>主要道路</span><span><i class="rl"></i>鐵路</span><span><i class="rv"></i>河川</span><span><b></b>道之驛</span></div>
-    <ul class="list" id="legs"></ul>
-    <div id="michis"></div>
-    <p class="cap">路線依國土地理院「地球地圖日本」（1:100 萬）道路網推算，沒有市區小路；車程以道路等級估速，未含塞車、雪況、休息，實際通常更久。座標為概略位置，導航請用 Map Code 或 Google Maps。道之驛位置以國土地理院地址檢索換算，營業時間取自旅遊網站，冬季可能縮短。</p>
-  </section>
-  <section class="view" id="v-stay">
-    <div class="section-h"><h2>住宿</h2><span class="en">Where we stay</span></div>
-    <div class="lodge" id="lodge"></div>
-  </section>
-  <section class="view" id="v-prep">
-    <div class="section-h"><h2>出發前</h2><span class="en">Before departure</span></div>
-    <div class="panel"><h3>航班資訊</h3><div class="facts" id="fl"></div></div>
-    <div class="panel"><h3>住宿資訊</h3><div class="facts" id="ld"></div></div>
-    <div class="panel"><h3>天氣與日落</h3><div class="facts" id="facts"></div></div>
-    <div class="panel"><h3>待辦</h3><ul class="todo" id="todo"></ul></div>
-    <div class="panel"><h3>地區風險</h3><div id="arisk"></div></div>
-    <div class="panel"><h3>注意事項</h3><ul class="todo" id="risks"></ul></div>
-    <div class="panel"><h3>季節</h3><div class="chips" id="season"></div></div>
-  </section>
-  <p class="foot" id="foot"></p>
-</div>
-<div class="toast" id="toast" hidden></div>
-
-<script src="js/data.js"></script>
-<script src="js/maps.js"></script>
-<script src="js/app.js"></script>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- 印泥質感：邊緣微微抖動＋細小缺墨 -->
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="1.5" xChannelSelector="R" yChannelSelector="G" result="shaky"/>
+    <feTurbulence type="fractalNoise" baseFrequency="1.9" numOctaves="1" seed="9" result="speck"/>
+    <feColorMatrix in="speck" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2 2.6" result="mask"/>
+    <feComposite in="shaky" in2="mask" operator="in"/>
+  </filter>
+</svg>
+<main id="app" class="app" tabindex="-1"><p class="boot">讀取行程中…</p></main>
+<nav class="tabbar" aria-label="主要分頁"></nav>
+<dialog id="sheet" class="sheet" aria-label="詳細內容"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
