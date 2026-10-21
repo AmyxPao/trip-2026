@@ -85,7 +85,7 @@ export function renderDay(n, { isToday = false } = {}) {
   const stops = stopsOf(trip, n);
   const routes = routeUrls(trip, n);
   const banner = isToday && ph !== 'during'
-    ? `<p class="banner">${ph === 'pre' ? `還沒出發（${daysUntil(trip)} 天後）。出發當天這裡會直接顯示當天行程，現在先看 Day 1。` : '旅程已經結束，這是最後一天的行程。'}</p>` : '';
+    ? `<p class="banner">${ph === 'pre' ? `還沒出發（${daysUntil(trip)} 天後）。出發當天這裡會直接顯示當天行程，現在先看 DAY 1。` : '旅程已經結束，這是最後一天的行程。'}</p>` : '';
 
   const list = stops.map((s, i) => {
     const ctl = ui.editing ? `<span class="tl-ctl">
