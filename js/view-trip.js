@@ -35,7 +35,7 @@ function masthead(trip) {
   } else if (ph === 'during') {
     const d = todayDay(trip);
     const nx = d && nextStop(trip, d.n);
-    stateHtml = `<a class="now" href="#/today"><span class="now-day">今天 · Day <b class="num">${d.n}</b></span>
+    stateHtml = `<a class="now" href="#/today"><span class="now-day">今天 · DAY <b class="num">${d.n}</b></span>
       <span class="now-next">${nx ? `下一站 <b class="num">${esc(nx.time)}</b> ${esc(nx.name.replace(/^★\s*/, ''))}` : '今天的行程走完了'}</span>${icon('next')}</a>`;
   } else {
     stateHtml = `<a class="now" href="#/ledger"><span class="now-day">旅程結束，歡迎回家</span><span class="now-next">看分帳結算</span>${icon('next')}</a>`;
@@ -58,7 +58,7 @@ export function renderOverview() {
     const stay = /^—/.test(d.stay) ? '' : `${icon('stay')}${esc(shortStay(d.stay))}<span class="dot">·</span>`;
     const cls = today && d.n === today.n ? 'is-today' : (today && d.n < today.n) || ph === 'post' ? 'is-past' : '';
     return `<li><a class="day-row ${cls}" href="#/day/${d.n}">
-      <span class="dnum num">${d.n}</span>
+      <span class="dnum num"><small>DAY</small>${d.n}</span>
       <span class="dbody">
         <span class="ddate"><span class="num">${md(d.date)}</span> 週${weekday(d.date)}${cls === 'is-today' ? '<em>今天</em>' : ''}</span>
         <span class="dtitle">${esc(d.title)}</span>

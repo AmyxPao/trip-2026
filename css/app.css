@@ -163,7 +163,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: background-color .2s var(--ease);
 }
 .day-row:active { background: color-mix(in srgb, var(--navy) 6%, transparent); }
-.dnum { font-size: 52px; line-height: .86; font-weight: 700; color: var(--navy); text-align: left; padding-top: 2px; }
+.dnum { font-size: 52px; line-height: .86; font-weight: 700; color: var(--navy); text-align: left; padding-top: 1px; }
+.dnum small { display: block; font-size: 14px; line-height: 1; font-weight: 700; letter-spacing: .12em; margin-bottom: 5px; }
 @media (prefers-color-scheme: dark) { .dnum { color: var(--ink); } }
 .dbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ddate { font-size: 13px; color: var(--ink-3); display: flex; align-items: baseline; gap: 6px; }
