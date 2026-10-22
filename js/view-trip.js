@@ -1,23 +1,13 @@
 // 總覽、單日時間軸、單站面板與編輯
 import { state, commit, uid, needsBackup, exportBackup } from './store.js';
 import { icon } from './icons.js';
-import { esc, stamp, openSheet, closeSheet, confirmTap, toast } from './ui.js';
+import { esc, openSheet, closeSheet, confirmTap, toast } from './ui.js';
 import {
   STATUS, TYPES, phase, daysUntil, todayDay, stopsOf, isMove, nextStop, md, weekday,
   placeQuery, navUrl, routeUrls, phoneOf, lodgingFor,
 } from './trip.js';
 
-const ui = { editing: false, stampIn: null };
-
-function statusStamp(s, size) {
-  const st = STATUS[s.status];
-  if (!st || !st.ch) return '';
-  const big = s.name.startsWith('★');
-  return stamp(st.ch, s.status, {
-    size: size || (big ? 44 : 38), seed: s.id, label: st.label,
-    cls: (big ? 'is-key ' : '') + (ui.stampIn === s.id ? 'stamp-in' : ''),
-  });
-}
+const ui = { editing: false };
 
 function shortStay(stay) {
   return stay.replace(/^高山\s*/, '').replace(/（.*?）/, '') || stay;
@@ -110,7 +100,6 @@ export function renderDay(n, { isToday = false } = {}) {
           ${s.ja && s.ja !== s.name ? `<span class="tl-ja" lang="ja">${esc(s.ja)}</span>` : ''}
           ${meta ? `<span class="tl-meta">${esc(meta)}</span>` : ''}
         </span>
-        <span class="tl-stamp">${statusStamp(s)}</span>
       </button>${ctl}</li>`;
   }).join('');
 
@@ -138,7 +127,6 @@ export function renderDay(n, { isToday = false } = {}) {
 }
 
 export function afterDay() {
-  if (ui.stampIn) setTimeout(() => { ui.stampIn = null; }, 50);
   if (ui.editing) bindDrag();
 }
 
@@ -165,7 +153,6 @@ export function openStop(id) {
     <header class="sh-head">
       <div><h2>${esc(s.name.replace(/^★\s*/, ''))}</h2>${s.ja ? `<p class="sh-ja" lang="ja">${esc(s.ja)}</p>` : ''}
       <p class="sh-meta num">DAY ${s.day} · ${esc(time)} · ${esc(s.type)}</p></div>
-      <span class="sh-stamp">${st.ch ? stamp(st.ch, s.status, { size: 58, seed: s.id, label: st.label }) : ''}</span>
     </header>
     <div class="sh-actions">
       ${q ? `<a class="btn primary" href="${esc(navUrl(q))}" target="_blank" rel="noopener">${icon('nav')}導航</a>` : '<span class="muted">地點未定，沒有導航</span>'}
@@ -200,9 +187,6 @@ export function editStop(id, newForDay) {
   const s = isNew
     ? { id: uid('s'), day: newForDay, time: '', stay: null, type: '景點', name: '', ja: '', intro: '', reason: '', hours: '', closed: '', fee: '', note: '', address: '', source: '', status: 'na', verify: '', phone: '', verifySource: '', verifyDate: '' }
     : { ...trip.stops.find((x) => x.id === id) };
-  const statusRadios = Object.entries(STATUS).map(([k, v]) => `<label class="st-opt">
-      <input type="radio" name="status" value="${k}" ${s.status === k ? 'checked' : ''}>
-      <span>${v.ch ? stamp(v.ch, k, { size: 30, seed: k }) : '<i class="st-none"></i>'}${v.label}</span></label>`).join('');
   openSheet(`
     <header class="sh-head"><div><h2>${isNew ? `新增一站` : '編輯這一站'}</h2><p class="sh-meta">DAY ${s.day}${isNew ? '' : ` · ${esc(s.name.replace(/^★\s*/, ''))}`}</p></div>
       <button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
@@ -216,7 +200,7 @@ export function editStop(id, newForDay) {
         <label class="f"><span>類型</span><select name="type">${TYPES.map((t) => `<option ${t === s.type ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
         <label class="f"><span>哪一天</span><select name="day">${trip.days.map((d) => `<option value="${d.n}" ${d.n === s.day ? 'selected' : ''}>DAY ${d.n}（${md(d.date)}）</option>`).join('')}</select></label>
       </div>
-      <fieldset class="f full"><legend>查證狀態</legend><div class="st-opts">${statusRadios}</div></fieldset>
+      <label class="f full"><span>查證狀態</span><select name="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${s.status === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select></label>
       ${FIELDS.map(([k, l]) => `<label class="f full"><span>${l}</span><input name="${k}" value="${esc(s[k])}"></label>`).join('')}
       ${LONG.map(([k, l]) => `<label class="f full"><span>${l}</span><textarea name="${k}" rows="3">${esc(s[k])}</textarea></label>`).join('')}
       <label class="f full"><span>查證來源（網址）</span><input name="verifySource" type="url" value="${esc(s.verifySource)}"></label>
@@ -243,11 +227,7 @@ export function editStop(id, newForDay) {
       for (const [k, v] of fd.entries()) next[k] = typeof v === 'string' ? v.trim() : v;
       next.day = Number(next.day);
       next.stay = next.stay === '' ? null : Number(next.stay);
-      const changedStatus = next.status !== s.status || isNew;
-      if (changedStatus && next.status !== 'na') {
-        next.verifyDate = new Date().toISOString().slice(0, 10);
-        ui.stampIn = next.id;
-      }
+      if ((next.status !== s.status || isNew) && next.status !== 'na') next.verifyDate = new Date().toISOString().slice(0, 10);
       commit(({ trip: t }) => {
         const i = t.stops.findIndex((x) => x.id === next.id);
         if (i >= 0 && t.stops[i].day === next.day) {

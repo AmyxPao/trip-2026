@@ -1,8 +1,8 @@
 // 地圖（Excel 版的靜態路線圖）與清單（出發前清單、住宿、風險、查證說明、備份）
 import { state, commit, exportBackup, parseBackup, restoreBackup, resetToSeed } from './store.js';
 import { icon } from './icons.js';
-import { esc, stamp, openSheet, closeSheet, confirmTap, toast } from './ui.js';
-import { STATUS, md, weekday, navUrl } from './trip.js';
+import { esc, openSheet, closeSheet, confirmTap, toast } from './ui.js';
+import { md, weekday, navUrl } from './trip.js';
 
 // 「• 甲 / • 乙」這類串在一起的條列拆成清單
 function listify(v) {
@@ -52,18 +52,11 @@ export function renderList() {
     ${r.weather.map((x) => `<li><span><b>天氣</b> ${esc(x)}</span></li>`).join('')}
     ${r.season.map((x) => `<li><span><b>${esc(x.item)}</b> ${esc(x.text)}</span><small>${esc(x.state)}</small></li>`).join('')}`;
 
-  const legend = Object.entries(STATUS).map(([k, v]) => {
-    const key = Object.keys(trip.legend).find((x) => x.includes(v.label));
-    return `<li>${v.ch ? stamp(v.ch, k, { size: 30, seed: k }) : '<i class="st-none"></i>'}<span><b>${v.label}</b>${esc(key ? trip.legend[key] : '')}</span></li>`;
-  }).join('');
-
   const fmt = (iso) => (iso ? new Date(iso).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '從來沒有');
   return `<header class="bar"><span class="bar-title">清單</span></header>
     <section class="block"><h2>出發前清單 <span class="num muted">${done} / ${trip.checklist.length}</span></h2><ul class="checks">${check}</ul></section>
     <section class="block"><h2>住宿</h2>${lodging}</section>
     <section class="block"><h2>風險與季節</h2><ul class="risks">${risks}</ul></section>
-    <section class="block"><h2>查證印章</h2><ul class="legend">${legend}</ul>
-      ${trip.legend['這份表仍然無法保證的事'] ? `<p class="fine">印章也保證不了的事：${esc(trip.legend['這份表仍然無法保證的事'])}</p>` : ''}</section>
     <section class="block" id="backup"><h2>資料與備份</h2>
       <p class="fine">行程和帳都只存在這支手機的瀏覽器裡。清除瀏覽器資料或換手機前，先匯出備份檔，存到雲端硬碟或傳到 LINE。</p>
       <dl class="kvs"><div class="kv"><dt>上次修改</dt><dd>${fmt(meta.modifiedAt)}</dd></div><div class="kv"><dt>上次備份</dt><dd>${fmt(meta.exportedAt)}</dd></div></dl>
