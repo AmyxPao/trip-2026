@@ -1,4 +1,4 @@
-// 地圖（Excel 版的靜態路線圖）與清單（出發前清單、住宿、風險、查證說明、備份）
+// 地圖（Excel 版的靜態路線圖）與清單（出發前清單、住宿、風險、備份）
 import { state, commit, exportBackup, parseBackup, restoreBackup, resetToSeed } from './store.js';
 import { icon } from './icons.js';
 import { esc, openSheet, closeSheet, confirmTap, toast } from './ui.js';

@@ -1,11 +1,4 @@
 // 行程相關的推算：今天是第幾天、下一站、導航與路線連結、電話
-export const STATUS = {
-  ok: { label: '官方確認', ch: '確' },
-  sec: { label: '次級來源', ch: '次' },
-  call: { label: '需電話確認', ch: '電' },
-  bad: { label: '有衝突', ch: '衝' },
-  na: { label: '不需查', ch: '' },
-};
 export const TYPES = ['景點', '用餐', '購物', '休息站', '住宿', '交通'];
 const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -101,7 +94,7 @@ export function routeUrls(trip, n) {
 
 const PHONE = /0\d{1,4}-\d{1,4}-\d{3,4}/;
 export function phoneOf(s) {
-  for (const f of [s.phone, s.closed, s.hours, s.note, s.verify]) {
+  for (const f of [s.phone, s.closed, s.hours, s.note]) {
     const m = (f || '').match(PHONE);
     if (m) return m[0];
   }
@@ -131,4 +124,19 @@ export function timeOrderIssue(trip, n) {
     prev = s;
   }
   return null;
+}
+
+// 舊資料的「查證」欄位改成備註：查證結果併進備註，查證來源改叫參考來源，狀態與查證日拿掉
+export function normalizeStops(trip) {
+  for (const s of trip.stops || []) {
+    if (s.verify) {
+      const v = s.verify.trim();
+      if (v && !(s.note || '').includes(v)) s.note = s.note ? `${s.note}\n${v}` : v;
+    }
+    delete s.verify;
+    delete s.status;
+    delete s.verifyDate;
+    if (s.verifySource === s.source) s.verifySource = '';
+  }
+  return trip;
 }

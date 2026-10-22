@@ -1,3 +1,5 @@
+import { normalizeStops } from './trip.js';
+
 // 資料只存在這支手機的瀏覽器：行程（由 data/trip.json 初始化）＋帳本＋中繼資料
 const KEY = 'hokuriku-trip-v1';
 const APP_ID = 'hokuriku-trip';
@@ -46,11 +48,11 @@ function writeLocal() {
 export async function load() {
   const saved = readLocal();
   if (saved && saved.trip) {
-    state.trip = saved.trip;
+    state.trip = normalizeStops(saved.trip);
     state.ledger = { ...defaultLedger(), ...saved.ledger };
     state.meta = { ...state.meta, ...saved.meta };
   } else {
-    state.trip = await fetchSeed();
+    state.trip = normalizeStops(await fetchSeed());
     state.ledger = defaultLedger();
     writeLocal();
   }
@@ -110,7 +112,7 @@ export async function parseBackup(file) {
 
 export function restoreBackup(data) {
   commit((s) => {
-    s.trip = data.trip;
+    s.trip = normalizeStops(data.trip);
     s.ledger = { ...defaultLedger(), ...data.ledger };
     s.meta.exportedAt = data.exportedAt || null;
   });
@@ -118,7 +120,7 @@ export function restoreBackup(data) {
 
 export async function resetToSeed() {
   const seed = await fetchSeed();
-  commit((s) => { s.trip = seed; });
+  commit((s) => { s.trip = normalizeStops(seed); });
 }
 
 // 有修改且超過一天沒備份（或從沒備份過）就提醒

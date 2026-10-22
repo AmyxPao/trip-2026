@@ -104,11 +104,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s02",
@@ -126,11 +123,8 @@
    "note": "店家未指定，沿路找；候選：ファミリーマート 小松沖町店（小松市沖町416），是否順路待確認",
    "address": "",
    "source": "https://www.navitime.co.jp/category/02/17203/",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s03",
@@ -148,11 +142,8 @@
    "note": "含城端 SA 休息約 2.5 小時；日落約 16:45，最後一段山路在黃昏",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s04",
@@ -167,14 +158,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "東海北陸道上行線、進山區前的 SA；只有便利商店，用來上廁所",
+   "note": "東海北陸道上行線、進山區前的 SA；只有便利商店，用來上廁所\n這是城端 SA 上行線，站內商店只有一家 24 小時的 Daily Yamazaki（便利商店），停車位 44 個。上廁所沒問題，但沒什麼可以「逛」，30 分鐘偏長，建議縮成 15 分",
    "address": "",
    "source": "https://www.ne.jp/asahi/expressway/dataroom/tokai-hokuriku_expwy.htm",
-   "status": "sec",
-   "verify": "這是城端 SA 上行線，站內商店只有一家 24 小時的 Daily Yamazaki（便利商店），停車位 44 個。上廁所沒問題，但沒什麼可以「逛」，30 分鐘偏長，建議縮成 15 分",
    "phone": "0120-922-229（NEXCO 中日本）",
-   "verifySource": "https://rurubu.jp/andmore/spot/80109970",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://rurubu.jp/andmore/spot/80109970"
   },
   {
    "id": "s05",
@@ -189,14 +177,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "房東入住時間 16:00 起",
+   "note": "房東入住時間 16:00 起\n已訂；入住時間 16:00",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "已訂；入住時間 16:00",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s06",
@@ -211,14 +196,11 @@
    "hours": "17:00–21:00（20:30 最後點餐）",
    "closed": "全年無休（元旦除外）",
    "fee": "晚餐約 3,000 日圓／人",
-   "note": "只接受現場候位（不收預約）；150 席；有附設停車場，從住處開車前往",
+   "note": "只接受現場候位（不收預約）；150 席；有附設停車場，從住處開車前往\n營業 17:00–21:00（最後點餐 20:30），元旦以外無休；有停車場 20 台。17:30 抵達符合營業時間。注意：資料來源 Hot Pepper 的細節頁最後更新於 2021 年",
    "address": "",
    "source": "https://www.hotpepper.jp/strJ000106800/",
-   "status": "sec",
-   "verify": "營業 17:00–21:00（最後點餐 20:30），元旦以外無休；有停車場 20 台。17:30 抵達符合營業時間。注意：資料來源 Hot Pepper 的細節頁最後更新於 2021 年",
    "phone": "",
-   "verifySource": "https://www.hotpepper.jp/strJ000106800/",
-   "verifyDate": "2026-10-21"
+   "verifySource": ""
   },
   {
    "id": "s07",
@@ -233,14 +215,11 @@
    "hours": "10:00–21:00",
    "closed": "",
    "fee": "",
-   "note": "有停車場；高山站約 500 m；2F 是無印良品",
+   "note": "有停車場；高山站約 500 m；2F 是無印良品\n2 樓無印良品的官網寫明：營業 10:00–20:00，跟隨 1 樓駿河屋的營業日（元旦以外無休）。19:15 到，只剩 45 分可逛",
    "address": "",
    "source": "https://tokubai.co.jp/transit/rail_lines/station_groups/2344/supermarket",
-   "status": "ok",
-   "verify": "2 樓無印良品的官網寫明：營業 10:00–20:00，跟隨 1 樓駿河屋的營業日（元旦以外無休）。19:15 到，只剩 45 分可逛",
    "phone": "",
-   "verifySource": "https://www.muji.com/jp/ja/shop/detail/046645",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.muji.com/jp/ja/shop/detail/046645"
   },
   {
    "id": "s08",
@@ -258,11 +237,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s09",
@@ -277,14 +253,11 @@
    "hours": "4–11 月 7:00–12:00（12–3 月 8:00 起）",
    "closed": "無休",
    "fee": "免費",
-   "note": "09:00 開車到朝市附近收費停車場（停到中午，約 1,000–1,500 円），不走路往返住處",
+   "note": "09:00 開車到朝市附近收費停車場（停到中午，約 1,000–1,500 円），不走路往返住處\n岐阜縣官方觀光網：12–3 月 8:00–12:00，全年無休，部分攤位賣完就收。11/27 還沒進入冬季時段，9:15 抵達沒問題",
    "address": "",
    "source": "https://www.mapple.net/article/48134/",
-   "status": "sec",
-   "verify": "岐阜縣官方觀光網：12–3 月 8:00–12:00，全年無休，部分攤位賣完就收。11/27 還沒進入冬季時段，9:15 抵達沒問題",
    "phone": "",
-   "verifySource": "https://www.kankou-gifu.jp/spot/detail_1241.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.kankou-gifu.jp/spot/detail_1241.html"
   },
   {
    "id": "s10",
@@ -299,14 +272,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "小吃只吃點心份量",
+   "note": "小吃只吃點心份量\n公共街區，沒有公休；各店家營業時間不一",
    "address": "",
    "source": "https://www.kankou-gifu.jp/spot/detail_1241.html",
-   "status": "na",
-   "verify": "公共街區，沒有公休；各店家營業時間不一",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s11",
@@ -324,11 +294,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s12",
@@ -343,14 +310,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "鯉魚 11 月下旬起移到增島城跡池子過冬；先到味処古川看排隊再散步",
+   "note": "鯉魚 11 月下旬起移到增島城跡池子過冬；先到味処古川看排隊再散步\n瀨戶川的鯉魚 11/29（日）8:00 才會移到天神池過冬，11/27 還看得到。很險，晚兩天就看不到了",
    "address": "",
    "source": "",
-   "status": "ok",
-   "verify": "瀨戶川的鯉魚 11/29（日）8:00 才會移到天神池過冬，11/27 還看得到。很險，晚兩天就看不到了",
    "phone": "",
-   "verifySource": "https://www.kankou-gifu.jp/event/detail_3991.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.kankou-gifu.jp/event/detail_3991.html"
   },
   {
    "id": "s13",
@@ -365,14 +329,11 @@
    "hours": "10:30–14:00（商店 8:30 起）",
    "closed": "",
    "fee": "",
-   "note": "14:00 關門，最晚 13:00 入店；只有午餐時段",
+   "note": "14:00 關門，最晚 13:00 入店；只有午餐時段\n官網：午餐 10:00–14:30（最後點餐 14:00），2 樓座敷 65 席、1 樓 44 席，可電話預約。官網沒寫公休日",
    "address": "岐阜県飛騨市古川町壱之町11-3",
    "source": "https://www.mapple.net/region/a0404040201_g03000000/spot/",
-   "status": "ok",
-   "verify": "官網：午餐 10:00–14:30（最後點餐 14:00），2 樓座敷 65 席、1 樓 44 席，可電話預約。官網沒寫公休日",
    "phone": "0577-73-7100",
-   "verifySource": "https://ajidokoro.jp/index.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://ajidokoro.jp/index.html"
   },
   {
    "id": "s14",
@@ -387,14 +348,11 @@
    "hours": "9:00–17:00",
    "closed": "12–3 月週三休；11/27 週五正常",
    "fee": "",
-   "note": "回程順路，廁所、土產",
+   "note": "回程順路，廁所、土產\n岐阜縣官方頁只寫了 4–10 月的 9:00–17:00，公休年末年始；11 月以後的營業時間沒寫。廁所 24 小時可用",
    "address": "",
    "source": "",
-   "status": "call",
-   "verify": "岐阜縣官方頁只寫了 4–10 月的 9:00–17:00，公休年末年始；11 月以後的營業時間沒寫。廁所 24 小時可用",
    "phone": "058-272-8576（縣道路維持課）",
-   "verifySource": "https://www.pref.gifu.lg.jp/shakai-kiban/doro/michinoeki/11657/arupu-hida-furukawa.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.pref.gifu.lg.jp/shakai-kiban/doro/michinoeki/11657/arupu-hida-furukawa.html"
   },
   {
    "id": "s15",
@@ -412,11 +370,8 @@
    "note": "想散步的人可走到宮川緑地公園（住處旁，河景、平路、有廁所）或沿河往南到宮川水辺ふれあい公園；櫻山八幡宮約 800 m（長輩 20–25 分）。北山公園要爬坡，不建議長輩",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s16",
@@ -431,14 +386,11 @@
    "hours": "未查到，出發前確認",
    "closed": "電話 0577-37-2265",
    "fee": "",
-   "note": "有停車場；距住處約 2 km、開車約 10 分",
+   "note": "有停車場；距住處約 2 km、開車約 10 分\n營業 11:00–23:00，週日、國定假日也營業。資料來自 ekiten，不是官方",
    "address": "岐阜県高山市上岡本町7-48-1",
    "source": "https://hamoni.jp/shop/LA9W9RIXqhX74yT2QU7l",
-   "status": "sec",
-   "verify": "營業 11:00–23:00，週日、國定假日也營業。資料來自 ekiten，不是官方",
    "phone": "0577-37-2265",
-   "verifySource": "https://www.ekiten.jp/g0109/st4929/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.ekiten.jp/g0109/st4929/"
   },
   {
    "id": "s17",
@@ -456,11 +408,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s18",
@@ -478,11 +427,8 @@
    "note": "06:15 起床；帶前一晚買好的零食飯糰",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s19",
@@ -497,14 +443,11 @@
    "hours": "11 月 8:30–16:00（12/1 起 9:00–15:30）",
    "closed": "11/24–11/27 檢修停駛，11/28 恢復；天候不佳停駛 0578-89-2252",
    "fee": "全程來回大人 3,800 円（已預購）",
-   "note": "抵達先上廁所；09:00 第 1 纜車 → 09:15 第 2 纜車（第 1 段 :00/:30、第 2 段 :15/:45 發車）",
+   "note": "抵達先上廁所；09:00 第 1 纜車 → 09:15 第 2 纜車（第 1 段 :00/:30、第 2 段 :15/:45 發車）\n官方公告：11/24–11/27 全線停駛保養，11/28 恢復營運。11/30 前營業時間 8:30–16:00，12/1 起改成 9:00–15:30。8:40 抵達可搭早班。來回票：成人 3,800 日圓",
    "address": "",
    "source": "https://www.kankou-gifu.jp/spot/detail_1212.html",
-   "status": "ok",
-   "verify": "官方公告：11/24–11/27 全線停駛保養，11/28 恢復營運。11/30 前營業時間 8:30–16:00，12/1 起改成 9:00–15:30。8:40 抵達可搭早班。來回票：成人 3,800 日圓",
    "phone": "0578-89-2252",
-   "verifySource": "https://shinhotaka-ropeway.jp/%E3%80%902026%E5%B9%B4%E5%BA%A6%E3%80%91%E6%96%B0%E7%A9%82%E9%AB%98%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%E3%81%AE%E9%81%8B%E8%A1%8C%E8%A8%88%E7%94%BB%E3%81%AB%E3%81%A4%E3%81%84/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shinhotaka-ropeway.jp/%E3%80%902026%E5%B9%B4%E5%BA%A6%E3%80%91%E6%96%B0%E7%A9%82%E9%AB%98%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%E3%81%AE%E9%81%8B%E8%A1%8C%E8%A8%88%E7%94%BB%E3%81%AB%E3%81%A4%E3%81%84/"
   },
   {
    "id": "s20",
@@ -519,14 +462,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "海拔約 2,150 m，可能零下；車站內有室內休息區；站外雪地步道長輩不用去",
+   "note": "海拔約 2,150 m，可能零下；車站內有室內休息區；站外雪地步道長輩不用去\n屬於纜車設施：只有 11/24–27 停駛期間全站關閉，11/28 正常。山頂約 2,156 m，比平地冷很多，長輩要穿厚",
    "address": "",
    "source": "",
-   "status": "ok",
-   "verify": "屬於纜車設施：只有 11/24–27 停駛期間全站關閉，11/28 正常。山頂約 2,156 m，比平地冷很多，長輩要穿厚",
    "phone": "0578-89-2252",
-   "verifySource": "https://shinhotaka-ropeway.jp/%E3%80%902026%E5%B9%B4%E5%BA%A6%E3%80%91%E6%96%B0%E7%A9%82%E9%AB%98%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%E3%81%AE%E9%81%8B%E8%A1%8C%E8%A8%88%E7%94%BB%E3%81%AB%E3%81%A4%E3%81%84/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shinhotaka-ropeway.jp/%E3%80%902026%E5%B9%B4%E5%BA%A6%E3%80%91%E6%96%B0%E7%A9%82%E9%AB%98%E3%83%AD%E3%83%BC%E3%83%97%E3%82%A6%E3%82%A7%E3%82%A4%E3%81%AE%E9%81%8B%E8%A1%8C%E8%A8%88%E7%94%BB%E3%81%AB%E3%81%A4%E3%81%84/"
   },
   {
    "id": "s21",
@@ -541,14 +481,11 @@
    "hours": "8:30–17:00（依季節）",
    "closed": "",
    "fee": "免費（需纜車票）",
-   "note": "足湯替代方案（選一個或不泡）：①平湯巴士總站足湯（免費、9:00–17:00）②ひらゆの森足湯（免費、24h）→ 兩者都要改走平湯路線；③先打電話問纜車公司 11/28 足湯開了沒",
+   "note": "足湯替代方案（選一個或不泡）：①平湯巴士總站足湯（免費、9:00–17:00）②ひらゆの森足湯（免費、24h）→ 兩者都要改走平湯路線；③先打電話問纜車公司 11/28 足湯開了沒\n官方公告：しらかば平站前的足湯從 6/27 起關閉整修，沒有公布重新開放日；隔壁廣場預計「2026 年 12 月前後」啟用 → 11/28 大概率泡不到。站內休息、吃東西還是可以",
    "address": "",
    "source": "https://www.mapple.net/station/291396/spot/",
-   "status": "bad",
-   "verify": "官方公告：しらかば平站前的足湯從 6/27 起關閉整修，沒有公布重新開放日；隔壁廣場預計「2026 年 12 月前後」啟用 → 11/28 大概率泡不到。站內休息、吃東西還是可以",
    "phone": "0578-89-2252",
-   "verifySource": "https://shinhotaka-ropeway.jp/zh-TW/%e9%8d%8b%e5%b9%b3%e9%ab%98%e5%8e%9f-%e5%b1%8b%e5%a4%96%e7%a9%ba%e9%96%93%e3%81%ae%e3%83%aa%e3%83%8b%e3%83%a5%e3%83%bc%e3%82%a2%e3%83%ab%e3%82%92%e5%ae%9f%e6%96%bd%e3%81%97%e3%81%be%e3%81%99/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shinhotaka-ropeway.jp/zh-TW/%e9%8d%8b%e5%b9%b3%e9%ab%98%e5%8e%9f-%e5%b1%8b%e5%a4%96%e7%a9%ba%e9%96%93%e3%81%ae%e3%83%aa%e3%83%8b%e3%83%a5%e3%83%bc%e3%82%a2%e3%83%ab%e3%82%92%e5%ae%9f%e6%96%bd%e3%81%97%e3%81%be%e3%81%99/"
   },
   {
    "id": "s22",
@@ -566,11 +503,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s23",
@@ -585,14 +519,11 @@
    "hours": "9:00–16:30（11–3 月）",
    "closed": "全年無休",
    "fee": "",
-   "note": "小吃：山椒味噌五平餅、飛驒牛包子、山之村牧場香腸；食事處「いちすけ」（鹽烤岩魚）、「たぬき」（飛驒牛串、雞ちゃん定食）；停車 28 台",
+   "note": "小吃：山椒味噌五平餅、飛驒牛包子、山之村牧場香腸；食事處「いちすけ」（鹽烤岩魚）、「たぬき」（飛驒牛串、雞ちゃん定食）；停車 28 台\n11–3 月的營業時間是 9:00–16:30，物產館無休。13:00 到沒問題",
    "address": "",
    "source": "https://www.kankou-gifu.jp/spot/detail_1263.html",
-   "status": "sec",
-   "verify": "11–3 月的營業時間是 9:00–16:30，物產館無休。13:00 到沒問題",
    "phone": "0578-89-3746",
-   "verifySource": "https://rurubu.jp/andmore/spot/80020750",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://rurubu.jp/andmore/spot/80020750"
   },
   {
    "id": "s24",
@@ -610,11 +541,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s25",
@@ -629,14 +557,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "候選：ラビットタウン高山（バロー超市＋美食街，離住處最近，10:00–20:00）／フレスポ飛騨高山（超市＋V drug＋UNIQLO，10:00–20:00）",
+   "note": "候選：ラビットタウン高山（バロー超市＋美食街，離住處最近，10:00–20:00）／フレスポ飛騨高山（超市＋V drug＋UNIQLO，10:00–20:00）\n還沒選定地點，所以沒辦法查",
    "address": "",
    "source": "",
-   "status": "bad",
-   "verify": "還沒選定地點，所以沒辦法查",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": "2026-10-21"
+   "verifySource": ""
   },
   {
    "id": "s26",
@@ -654,11 +579,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s27",
@@ -676,11 +598,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s28",
@@ -695,14 +614,11 @@
    "hours": "8:30–17:30",
    "closed": "無休",
    "fee": "停車場：せせらぎ公園（費用待查，2025/10 調漲）",
-   "note": "散策路線：せせらぎ公園停車場（1,000 円）→ であい橋 → 巴士總站（上廁所）→ 接駁巴士上荻町城跡展望台（單程 200 円、約 5 分，資料寫每小時 3 班，冬季班次待確認）→ 搭接駁巴士下山 → 和田家 → 本通り主街散步。地面可能結冰，穿防滑鞋",
+   "note": "散策路線：せせらぎ公園停車場（1,000 円）→ であい橋 → 巴士總站（上廁所）→ 接駁巴士上荻町城跡展望台（單程 200 円、約 5 分，資料寫每小時 3 班，冬季班次待確認）→ 搭接駁巴士下山 → 和田家 → 本通り主街散步。地面可能結冰，穿防滑鞋\n白川村官方停車場營業 8:00–17:00（最後入場 16:30）。從 12/1 起「巴士」停車才需要預約，自用車不需要",
    "address": "",
    "source": "https://www.walkerplus.com/spot/ar0621s05391/map.html",
-   "status": "ok",
-   "verify": "白川村官方停車場營業 8:00–17:00（最後入場 16:30）。從 12/1 起「巴士」停車才需要預約，自用車不需要",
    "phone": "05769-6-1311（白川村觀光振興課）",
-   "verifySource": "https://parking.shirakawa-going.jp/index.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://parking.shirakawa-going.jp/index.html"
   },
   {
    "id": "s29",
@@ -717,14 +633,11 @@
    "hours": "",
    "closed": "",
    "fee": "接駁巴士單程 200 円",
-   "note": "搭和田家前的接駁巴士（單程 ¥300，現金），每 20 分一班，12 點那一小時停駛",
+   "note": "搭和田家前的接駁巴士（單程 ¥300，現金），每 20 分一班，12 點那一小時停駛\n接駁巴士每天 9:00–15:40 從和田家前出發，每 20 分一班（00/20/40 分），12 點那一小時停駛；單程 300 日圓，只收現金。步道冬季可能封閉，長輩走路上坡也吃力 → 建議搭接駁巴士",
    "address": "",
    "source": "https://www.mapple.net/article/44772/",
-   "status": "ok",
-   "verify": "接駁巴士每天 9:00–15:40 從和田家前出發，每 20 分一班（00/20/40 分），12 點那一小時停駛；單程 300 日圓，只收現金。步道冬季可能封閉，長輩走路上坡也吃力 → 建議搭接駁巴士",
    "phone": "05769-6-1311",
-   "verifySource": "https://shirakawa-go.gr.jp/faq/5/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shirakawa-go.gr.jp/faq/5/"
   },
   {
    "id": "s30",
@@ -739,14 +652,11 @@
    "hours": "9:00–17:00",
    "closed": "",
    "fee": "大人 400 円",
-   "note": "部分評論說屋內陳設較少，看結構為主",
+   "note": "部分評論說屋內陳設較少，看結構為主\n開放 9:00–17:00，成人 400 日圓。公休日沒有寫",
    "address": "",
    "source": "https://www.mapple.net/article/44772/",
-   "status": "sec",
-   "verify": "開放 9:00–17:00，成人 400 日圓。公休日沒有寫",
    "phone": "",
-   "verifySource": "https://www.nap-camp.com/mag/12406",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.nap-camp.com/mag/12406"
   },
   {
    "id": "s31",
@@ -761,14 +671,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "土產店、小吃，挑一段平路走就好",
+   "note": "土產店、小吃，挑一段平路走就好\n公共街區",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "公共街區",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s32",
@@ -783,14 +690,11 @@
    "hours": "合掌 10:00–16:00",
    "closed": "待查",
    "fee": "",
-   "note": "しらおぎ午間易客滿、易售罄",
+   "note": "しらおぎ午間易客滿、易售罄\nしらおぎ：營業時間、公休日都查不到；お食事処 合掌：查到 10:00–16:00，但開店時間各資料互相矛盾",
    "address": "",
    "source": "https://hamoni.jp/en/area/gifu/oono/list/others",
-   "status": "call",
-   "verify": "しらおぎ：營業時間、公休日都查不到；お食事処 合掌：查到 10:00–16:00，但開店時間各資料互相矛盾",
    "phone": "",
-   "verifySource": "https://hamoni.jp/area/gifu/oono/shirakawa/list/others",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://hamoni.jp/area/gifu/oono/shirakawa/list/others"
   },
   {
    "id": "s33",
@@ -805,14 +709,11 @@
    "hours": "11:30–15:30",
    "closed": "",
    "fee": "",
-   "note": "尖峰時段 5 人可能要等；Google 4.8",
+   "note": "尖峰時段 5 人可能要等；Google 4.8\n營業 11:30–16:00，不定休 → 一定要先打電話。正式名稱是「落人（おちうど）」",
    "address": "",
    "source": "",
-   "status": "call",
-   "verify": "營業 11:30–16:00，不定休 → 一定要先打電話。正式名稱是「落人（おちうど）」",
    "phone": "090-5458-0418",
-   "verifySource": "https://www.kankou-gifu.jp/blog/detail_338.html",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.kankou-gifu.jp/blog/detail_338.html"
   },
   {
    "id": "s34",
@@ -830,11 +731,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s35",
@@ -849,14 +747,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "有人指名必去，保留；聚落小、好走。長輩累的話縮短停留，不跳過",
+   "note": "有人指名必去，保留；聚落小、好走。長輩累的話縮短停留，不跳過\n有一個共用的收費停車場（100 台），費用和冬季營運情況都查不到",
    "address": "",
    "source": "",
-   "status": "call",
-   "verify": "有一個共用的收費停車場（100 台），費用和冬季營運情況都查不到",
    "phone": "0763-66-2468（五箇山綜合服務中心）",
-   "verifySource": "https://tabi-mag.jp/ty0046/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://tabi-mag.jp/ty0046/"
   },
   {
    "id": "s36",
@@ -874,11 +769,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s37",
@@ -896,11 +788,8 @@
    "note": "入住 15:00–19:00",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s38",
@@ -915,14 +804,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "",
+   "note": "你把這一項改成「超市／看有沒有燒肉店」。原本已經預約了飛天龍 → 如果不去，要記得取消預約",
    "address": "",
    "source": "",
-   "status": "call",
-   "verify": "你把這一項改成「超市／看有沒有燒肉店」。原本已經預約了飛天龍 → 如果不去，要記得取消預約",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": "2026-10-21"
+   "verifySource": ""
   },
   {
    "id": "s39",
@@ -940,11 +826,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s40",
@@ -959,14 +842,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "",
+   "note": "運河街區沒有公休；但附近停車場在哪、收不收費查不到可靠資料，出發前在 Google Maps 先找好",
    "address": "",
    "source": "https://www.pref.toyama.jp/documents/10385/00000161.pdf",
-   "status": "call",
-   "verify": "運河街區沒有公休；但附近停車場在哪、收不收費查不到可靠資料，出發前在 Google Maps 先找好",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": "2026-10-21"
+   "verifySource": ""
   },
   {
    "id": "s41",
@@ -981,14 +861,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "道の駅 雨晴就在海岸旁，可停這裡；晴天可看到海對面的立山連峰",
+   "note": "道の駅 雨晴就在海岸旁，可停這裡；晴天可看到海對面的立山連峰\n道之驛雨晴：9:00–19:00，無休，停車 55 台。能不能看到立山要看天氣",
    "address": "",
    "source": "",
-   "status": "sec",
-   "verify": "道之驛雨晴：9:00–19:00，無休，停車 55 台。能不能看到立山要看天氣",
    "phone": "0766-53-5661",
-   "verifySource": "https://rurubu.jp/andmore/spot/80113763",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://rurubu.jp/andmore/spot/80113763"
   },
   {
    "id": "s42",
@@ -1003,14 +880,11 @@
    "hours": "鮮魚・物販 8:30–18:00／飲食 11:00–18:00／回轉壽司 10:00–20:00",
    "closed": "1/1 休，11/30 營業",
    "fee": "停車免費",
-   "note": "買海鮮帶回 ARU 當晚餐，請店家加保冷劑；館外有免費足湯 8:30–17:30（看得到海和立山，要帶毛巾）",
+   "note": "買海鮮帶回 ARU 當晚餐，請店家加保冷劑；館外有免費足湯 8:30–17:30（看得到海和立山，要帶毛巾）\n官網：鮮魚・物販 8:30–18:00、餐廳 11:00–18:00、回轉壽司 10:00–20:00、足湯 8:30–17:30（免費）。官網有提醒營業時間有調整，出發前要再看一次",
    "address": "",
    "source": "https://www.nap-camp.com/mag/?p=122861",
-   "status": "ok",
-   "verify": "官網：鮮魚・物販 8:30–18:00、餐廳 11:00–18:00、回轉壽司 10:00–20:00、足湯 8:30–17:30（免費）。官網有提醒營業時間有調整，出發前要再看一次",
    "phone": "0766-72-3400",
-   "verifySource": "https://himi-banya.jp/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://himi-banya.jp/"
   },
   {
    "id": "s43",
@@ -1028,11 +902,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s44",
@@ -1047,14 +918,11 @@
    "hours": "",
    "closed": "",
    "fee": "",
-   "note": "ARU 約 1 km，長輩搭計程車或開車；多數店 17:00–18:00 關（未查證）；傍晚點燈好拍",
+   "note": "ARU 約 1 km，長輩搭計程車或開車；多數店 17:00–18:00 關（未查證）；傍晚點燈好拍\n週一沒有固定公休的主要設施。志摩：12–2 月 9:30–17:00 無休；懷華樓：週二公休；お茶屋美術館：週四公休",
    "address": "",
    "source": "",
-   "status": "sec",
-   "verify": "週一沒有固定公休的主要設施。志摩：12–2 月 9:30–17:00 無休；懷華樓：週二公休；お茶屋美術館：週四公休",
    "phone": "",
-   "verifySource": "https://www.mapple.net/article/43801/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.mapple.net/article/43801/"
   },
   {
    "id": "s45",
@@ -1072,11 +940,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s46",
@@ -1091,14 +956,11 @@
    "hours": "約 9:00–16:00，依店家",
    "closed": "週二正常；水曜、日曜休的店較多",
    "fee": "",
-   "note": "早午餐坐著吃；長輩從 ARU 開車或計程車（約 1.3 km）",
+   "note": "早午餐坐著吃；長輩從 ARU 開車或計程車（約 1.3 km）\n營業約 9:00–16:00，各店不同；週三、週日公休的店比較多。12/1 是週二，沒問題",
    "address": "",
    "source": "https://www.nap-camp.com/mag/?p=107501",
-   "status": "sec",
-   "verify": "營業約 9:00–16:00，各店不同；週三、週日公休的店比較多。12/1 是週二，沒問題",
    "phone": "",
-   "verifySource": "https://www.nap-camp.com/mag/spot/107501",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://www.nap-camp.com/mag/spot/107501"
   },
   {
    "id": "s47",
@@ -1113,14 +975,11 @@
    "hours": "有料區 9:00–16:30（16:00 前入館）；免費區 24 小時",
    "closed": "無休",
    "fee": "大人 320 日圓",
-   "note": "先進城內有料區，避免下午錯過入館",
+   "note": "先進城內有料區，避免下午錯過入館\n菱櫓・五十間長屋：9:00–16:30（最後入館 16:00），年中無休，成人 320 日圓（跟兼六園買共通券 500 日圓）",
    "address": "",
    "source": "https://rurubu.jp/andmore/spot/80016301",
-   "status": "ok",
-   "verify": "菱櫓・五十間長屋：9:00–16:30（最後入館 16:00），年中無休，成人 320 日圓（跟兼六園買共通券 500 日圓）",
    "phone": "076-234-3800",
-   "verifySource": "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/info/fee.php",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/info/fee.php"
   },
   {
    "id": "s48",
@@ -1135,14 +994,11 @@
    "hours": "10/16–2 月底 8:00–17:00",
    "closed": "無休",
    "fee": "大人 320 日圓",
-   "note": "栄螺山附近施工，園路變窄，有長輩請慢慢走；可跟金澤城買共通券 ¥500",
+   "note": "栄螺山附近施工，園路變窄，有長輩請慢慢走；可跟金澤城買共通券 ¥500\n官方公告：栄螺山一帶正在進行石垣解體工程，有工程車進出，部分園路變窄，要聽從現場引導。公告沒寫工期 → 有長輩同行，走路要多留時間",
    "address": "",
    "source": "https://www.ana.co.jp/zh/tw/japan-travel-planner/ishikawa/0000005.html",
-   "status": "ok",
-   "verify": "官方公告：栄螺山一帶正在進行石垣解體工程，有工程車進出，部分園路變窄，要聽從現場引導。公告沒寫工期 → 有長輩同行，走路要多留時間",
    "phone": "076-234-3800",
-   "verifySource": "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/news/9152/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/news/9152/"
   },
   {
    "id": "s49",
@@ -1160,11 +1016,8 @@
    "note": "兼六園逛完回程順路超市採買",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s50",
@@ -1182,11 +1035,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s51",
@@ -1204,11 +1054,8 @@
    "note": "週三近江町很多店休，不建議排近江町",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s52",
@@ -1223,14 +1070,11 @@
    "hours": "待查",
    "closed": "",
    "fee": "",
-   "note": "金澤市西泉 4 丁目，有停車場；座標只到町名（概略）",
+   "note": "金澤市西泉 4 丁目，有停車場；座標只到町名（概略）\n營業 8:00–24:00（LIVE JAPAN）",
    "address": "",
    "source": "https://coparking.ch/en/Japan/parking/mega-74614",
-   "status": "sec",
-   "verify": "營業 8:00–24:00（LIVE JAPAN）",
    "phone": "",
-   "verifySource": "https://livejapan.com/en/in-tokyo/in-pref-other/in-pref-ishikawa/spot-lj0145296/",
-   "verifyDate": "2026-10-21"
+   "verifySource": "https://livejapan.com/en/in-tokyo/in-pref-other/in-pref-ishikawa/spot-lj0145296/"
   },
   {
    "id": "s53",
@@ -1248,11 +1092,8 @@
    "note": "24 小時、有停車場：マックスバリュ 東金沢駅前店（約 10 分）或 イオン もりの里店（約 10–15 分）",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s54",
@@ -1270,11 +1111,8 @@
    "note": "隔天 8:30 出發去機場",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s55",
@@ -1292,11 +1130,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s56",
@@ -1314,11 +1149,8 @@
    "note": "還車地點、加滿油的加油站、接駁時間待確認",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   },
   {
    "id": "s57",
@@ -1336,11 +1168,8 @@
    "note": "",
    "address": "",
    "source": "",
-   "status": "na",
-   "verify": "",
    "phone": "",
-   "verifySource": "",
-   "verifyDate": ""
+   "verifySource": ""
   }
  ],
  "lodging": [
@@ -1531,17 +1360,6 @@
    "note": ""
   }
  ],
- "legend": {
-  "查證日": "2026-10-21",
-  "查證方式": "每一站都對照「實際造訪日期」查營業時間、公休日、施工、冬季變動，優先看官方網站和公告",
-  "✅ 官方確認": "官網或官方公告寫明，當天可以去",
-  "🟡 次級來源": "只在旅遊網站查到，官方沒寫；大概率沒問題，但可能過期",
-  "❗ 需電話確認": "查不到資料、不定休，或官方資料有缺漏 → 列在「出發前清單」",
-  "❌ 有衝突": "跟行程有衝突，要調整",
-  "— 不需查": "交通、自煮、自由活動",
-  "上次為什麼漏掉": "之前只看了旅遊網站，以為「足湯免費、需搭纜車」，沒有去看纜車官網的公告，所以沒發現 6/27 起整修。這次每一站都先看官方公告",
-  "這份表仍然無法保證的事": "臨時休業、天候停駛、今天之後才公布的施工；所以出發前 3 天要用「出發前清單」最後一項再重看一次"
- },
  "maps": [
   {
    "key": "overview",
@@ -1590,7 +1408,6 @@
   }
  ],
  "source": {
-  "file": "北陸自駕行程.xlsx",
-  "verifiedOn": "2026-10-21"
+  "file": "北陸自駕行程.xlsx"
  }
 }

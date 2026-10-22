@@ -3,7 +3,7 @@ import { state, commit, uid, needsBackup, exportBackup } from './store.js';
 import { icon } from './icons.js';
 import { esc, openSheet, closeSheet, confirmTap, toast } from './ui.js';
 import {
-  STATUS, TYPES, phase, daysUntil, todayDay, stopsOf, isMove, nextStop, md, weekday,
+  TYPES, phase, daysUntil, todayDay, stopsOf, isMove, nextStop, md, weekday,
   navUrl, routeUrls, phoneOf, lodgingFor, destination, timeOrderIssue, nowHM,
 } from './trip.js';
 
@@ -157,7 +157,6 @@ export function openStop(id) {
   if (!s) return;
   const dest = destination(state.trip, s);
   const tel = phoneOf(s);
-  const st = STATUS[s.status] || STATUS.na;
   const time = [s.time, s.stay ? `停留約 ${s.stay} 分` : ''].filter(Boolean).join(' · ');
   openSheet(`
     <header class="sh-head">
@@ -172,11 +171,7 @@ export function openStop(id) {
       ${field('營業時間', s.hours)}${field('公休', s.closed)}${field('費用', s.fee)}
       ${field('介紹', s.intro, 'long')}${field('推薦理由', s.reason)}${field('備註', s.note, 'long')}${field('地址', s.address)}
     </dl>
-    <section class="verify">
-      <h3>查證 <span class="vtag" style="--tone:var(--ink-${s.status})">${esc(st.label)}</span>${s.verifyDate ? `<span class="muted num">${esc(s.verifyDate)}</span>` : ''}</h3>
-      ${s.verify ? `<p>${esc(s.verify)}</p>` : ''}
-      <dl class="kvs">${linkField('查證來源', s.verifySource)}${linkField('資料來源', s.source)}</dl>
-    </section>
+    ${s.source || s.verifySource ? `<dl class="kvs">${linkField('資料來源', s.source)}${linkField('參考來源', s.verifySource)}</dl>` : ''}
     <footer class="sh-foot">
       <button class="btn" data-close>關閉</button>
       <button class="btn" id="go-edit">${icon('edit')}編輯這一站</button>
@@ -189,13 +184,13 @@ export function openStop(id) {
 const FIELDS = [
   ['ja', '日文名稱（導航用）'], ['hours', '營業時間'], ['closed', '公休'], ['fee', '費用'], ['address', '地址'], ['phone', '電話'],
 ];
-const LONG = [['intro', '介紹'], ['reason', '推薦理由'], ['note', '備註'], ['verify', '查證結果（對照當天）']];
+const LONG = [['intro', '介紹'], ['reason', '推薦理由'], ['note', '備註']];
 
 export function editStop(id, newForDay) {
   const trip = state.trip;
   const isNew = !id;
   const s = isNew
-    ? { id: uid('s'), day: newForDay, time: '', stay: null, type: '景點', name: '', ja: '', intro: '', reason: '', hours: '', closed: '', fee: '', note: '', address: '', source: '', status: 'na', verify: '', phone: '', verifySource: '', verifyDate: '' }
+    ? { id: uid('s'), day: newForDay, time: '', stay: null, type: '景點', name: '', ja: '', intro: '', reason: '', hours: '', closed: '', fee: '', note: '', address: '', source: '', phone: '', verifySource: '' }
     : { ...trip.stops.find((x) => x.id === id) };
   openSheet(`
     <header class="sh-head"><div><h2>${isNew ? `新增一站` : '編輯這一站'}</h2><p class="sh-meta">DAY ${s.day}${isNew ? '' : ` · ${esc(s.name.replace(/^★\s*/, ''))}`}</p></div>
@@ -210,10 +205,9 @@ export function editStop(id, newForDay) {
         <label class="f"><span>類型</span><select name="type">${TYPES.map((t) => `<option ${t === s.type ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
         <label class="f"><span>哪一天</span><select name="day">${trip.days.map((d) => `<option value="${d.n}" ${d.n === s.day ? 'selected' : ''}>DAY ${d.n}（${md(d.date)}）</option>`).join('')}</select></label>
       </div>
-      <label class="f full"><span>查證狀態</span><select name="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${s.status === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select></label>
       ${FIELDS.map(([k, l]) => `<label class="f full"><span>${l}</span><input name="${k}" value="${esc(s[k])}"></label>`).join('')}
       ${LONG.map(([k, l]) => `<label class="f full"><span>${l}</span><textarea name="${k}" rows="3">${esc(s[k])}</textarea></label>`).join('')}
-      <label class="f full"><span>查證來源（網址）</span><input name="verifySource" type="url" value="${esc(s.verifySource)}"></label>
+      <label class="f full"><span>參考來源（網址）</span><input name="verifySource" type="url" value="${esc(s.verifySource)}"></label>
       <label class="f full"><span>資料來源（網址）</span><input name="source" type="url" value="${esc(s.source)}"></label>
       <p class="form-err" role="alert" hidden></p>
       <footer class="sh-foot">
@@ -237,7 +231,6 @@ export function editStop(id, newForDay) {
       for (const [k, v] of fd.entries()) next[k] = typeof v === 'string' ? v.trim() : v;
       next.day = Number(next.day);
       next.stay = next.stay === '' ? null : Number(next.stay);
-      if ((next.status !== s.status || isNew) && next.status !== 'na') next.verifyDate = new Date().toISOString().slice(0, 10);
       commit(({ trip: t }) => {
         const i = t.stops.findIndex((x) => x.id === next.id);
         if (i >= 0 && t.stops[i].day === next.day) {

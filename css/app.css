@@ -334,15 +334,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .kv { display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: var(--fs-body); }
 .kv dt { color: var(--ink-3); font-size: var(--fs-label); padding-top: 1px; }
 .kv dd { overflow-wrap: anywhere; }
-.kv.long dd { line-height: 1.65; }
+.kv.long dd { line-height: 1.65; white-space: pre-line; }
 .kv a { display: inline-flex; align-items: center; gap: 3px; color: var(--navy-2); }
 @media (prefers-color-scheme: dark) { .kv a { color: var(--focus); } }
 .kv a .ico { width: 14px; height: 14px; }
-.verify { margin-top: 18px; }
-.verify h3 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-body); font-weight: 800; }
-.verify h3 .muted { font-size: var(--fs-small); font-weight: 600; }
-.verify > p { margin-top: 8px; font-size: var(--fs-small); line-height: 1.65; color: var(--ink-2); }
-.vtag { font-size: var(--fs-micro); font-weight: 800; color: var(--tone); padding: 2px 8px; border-radius: 999px; border: 1.5px solid currentColor; }
 
 /* ---------- 表單 ---------- */
 .form { display: grid; gap: 14px; margin-top: 14px; }
