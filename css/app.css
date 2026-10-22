@@ -257,7 +257,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tl-stop + .tl-stop .tl-hit { border-top: 1px solid var(--rule); }
 .tl-stop.is-next .tl-time { color: var(--shu); }
 .tl-nav { align-self: center; margin-right: 6px; color: var(--navy-2); }
-.tl-stop .tl-nav { width: 48px; height: 48px; border-radius: 14px; background: var(--navy); color: var(--on-navy); }
+.tl-stop .tl-nav { width: 48px; height: 48px; border-radius: 12px; background: var(--navy); color: var(--on-navy); }
 .tl.is-next { background: var(--shu-wash); }
 .tl.is-past .tl-time, .tl.is-past .tl-name, .tl.is-past .tl-move-text { color: var(--ink-3); }
 .tl.is-past .tl-name { font-weight: 600; }
