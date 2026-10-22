@@ -1,5 +1,5 @@
 // 分帳：記一筆、總帳、分類帳、日期帳、分帳帳目、設定
-import { state, commit, uid } from './store.js';
+import { state, commit, uid, needsBackup } from './store.js';
 import { icon } from './icons.js';
 import { esc, stamp, openSheet, closeSheet, confirmTap, toast } from './ui.js';
 import { summarize, toTWD, fmtTWD, fmtJPY, fmtAmount, meShare, liveEntries } from './ledger.js';
@@ -137,15 +137,24 @@ function defaultDate() {
   return 'pre';
 }
 
-export function editEntry(id) {
+export function editEntry(id, preset = {}) {
   const led = L();
   const isNew = !id;
   const e = isNew
-    ? { id: uid('e'), date: defaultDate(), amount: '', currency: 'JPY', cat: led.categories[0]?.id, payer: 'me', method: 'cash', split: { type: 'half', me: 50 }, note: '', billTWD: null }
+    ? { id: uid('e'), date: preset.date || defaultDate(), amount: '', currency: 'JPY', cat: led.categories[0]?.id, payer: 'me', method: 'cash', split: { type: 'half', me: 50 }, note: '', billTWD: null }
     : structuredClone(led.entries.find((x) => x.id === id));
   const dates = ['pre', ...state.trip.days.map((d) => d.date)];
   if (!dates.includes(e.date)) dates.push(e.date);
   const radio = (name, val, cur, label, extra = '') => `<label class="chip"><input type="radio" name="${name}" value="${esc(val)}" ${String(cur) === String(val) ? 'checked' : ''}>${extra}<span>${label}</span></label>`;
+  // 分類先顯示最常用的 4 個（目前選的一定在裡面），其餘收在「更多」
+  const used = new Map();
+  liveEntries(led).forEach((x) => used.set(x.cat, (used.get(x.cat) || 0) + 1));
+  const ranked = led.categories.map((c, i) => ({ c, i, n: used.get(c.id) || 0 })).sort((a, b) => b.n - a.n || a.i - b.i).map((x) => x.c);
+  const top = ranked.slice(0, 4);
+  if (!top.some((c) => c.id === e.cat)) top[3] = ranked.find((c) => c.id === e.cat) || top[3];
+  const rest = led.categories.filter((c) => !top.includes(c));
+  const splitLabel = (t, me) => ({ half: '對半', me: `全算${who('me')}`, mate: `全算${who('mate')}`, custom: `${who('me')} ${me}%` }[t] || '對半');
+  const summary = () => `${methodName(e.method)} · ${dateLabel(e.date).split(' · ')[0]} · ${splitLabel(e.split.type, e.split.me)}`;
 
   openSheet(`
     <header class="sh-head"><div><h2>${isNew ? '記一筆' : '修改這筆帳'}</h2></div>
@@ -155,10 +164,15 @@ export function editEntry(id) {
         <label class="f amt"><span>金額</span><input name="amount" inputmode="decimal" autocomplete="off" value="${e.amount}" placeholder="0" required></label>
         <div class="cur" role="radiogroup" aria-label="幣別">${radio('currency', 'JPY', e.currency, '日圓')}${radio('currency', 'TWD', e.currency, '台幣')}</div>
       </div>
-      <fieldset class="f full"><legend>分類</legend><div class="chips">${led.categories.map((c) => radio('cat', c.id, e.cat, esc(c.name))).join('')}</div></fieldset>
+      <fieldset class="f full"><legend>分類</legend><div class="chips">${top.map((c) => radio('cat', c.id, e.cat, esc(c.name))).join('')}
+        ${rest.length ? `<button type="button" class="chip-more" id="more-cats">更多（${rest.length}）</button>` : ''}</div>
+        ${rest.length ? `<div class="chips" id="rest-cats" hidden>${rest.map((c) => radio('cat', c.id, e.cat, esc(c.name))).join('')}</div>` : ''}</fieldset>
       <fieldset class="f full"><legend>誰先付</legend><div class="chips">
         ${radio('payer', 'me', e.payer, esc(who('me')), stamp('我', 'me', { size: 24, seed: 'me' }))}
         ${radio('payer', 'mate', e.payer, esc(who('mate')), stamp('伴', 'mate', { size: 24, seed: 'mate' }))}</div></fieldset>
+      <details class="more-opts" ${isNew ? '' : 'open'}>
+      <summary><span class="mo-label">付款・日期・怎麼分</span><span class="mo-sum">${esc(summary())}</span><span class="mo-edit">更改</span></summary>
+      <div class="more-body">
       <div class="f-row">
         <label class="f"><span>付款方式</span><select name="method">
           <option value="cash" ${e.method === 'cash' ? 'selected' : ''}>現金</option>
@@ -174,9 +188,10 @@ export function editEntry(id) {
         ${radio('split', 'half', e.split.type, '對半')}${radio('split', 'me', e.split.type, `全算${esc(who('me'))}`)}${radio('split', 'mate', e.split.type, `全算${esc(who('mate'))}`)}${radio('split', 'custom', e.split.type, '自訂')}</div>
         <label class="f custom" ${e.split.type === 'custom' ? '' : 'hidden'}><span>${esc(who('me'))}負擔（%）</span><input name="splitMe" type="number" inputmode="numeric" min="0" max="100" value="${e.split.me ?? 50}"></label>
       </fieldset>
+      </div></details>
       <label class="f full"><span>備註</span><input name="note" value="${esc(e.note)}" placeholder="例：丸明 燒肉、城端 SA 加油"></label>
       <p class="form-err" role="alert" hidden></p>
-      <footer class="sh-foot">
+      <footer class="sh-foot sticky">
         ${isNew ? '<span></span>' : `<button type="button" class="btn danger" id="del">${icon('trash')}刪除</button>`}
         <button type="submit" class="btn primary">${isNew ? '記下來' : '儲存'}</button>
       </footer>
@@ -188,7 +203,10 @@ export function editEntry(id) {
       f.querySelector('.new-card').hidden = m !== '__new';
       f.querySelector('.bill').hidden = !(cur === 'JPY' && m !== 'cash');
       f.querySelector('.custom').hidden = f.split.value !== 'custom';
+      const m2 = m === '__new' ? (f.newCard.value.trim() || '新卡片') : methodName(m);
+      f.querySelector('.mo-sum').textContent = `${m2} · ${dateLabel(f.date.value).split(' · ')[0]} · ${splitLabel(f.split.value, f.splitMe.value)}`;
     };
+    d.querySelector('#more-cats')?.addEventListener('click', (ev) => { d.querySelector('#rest-cats').hidden = false; ev.currentTarget.remove(); });
     f.addEventListener('change', sync);
     if (isNew) setTimeout(() => f.amount.focus(), 220);
     f.addEventListener('submit', (ev) => {
@@ -226,10 +244,13 @@ export function editEntry(id) {
     const del = d.querySelector('#del');
     if (del) confirmTap(del, () => {
       // 不真的刪掉：標成已刪除，其他裝置同步時才知道要拿掉
-      commit(({ ledger }) => { const x = ledger.entries.find((y) => y.id === e.id); if (x) touch(Object.assign(x, { deleted: true })); });
-      schedule();
+      const setDeleted = (flag) => {
+        commit(({ ledger }) => { const x = ledger.entries.find((y) => y.id === e.id); if (x) touch(Object.assign(x, { deleted: flag })); });
+        schedule();
+      };
+      setDeleted(true);
       closeSheet();
-      toast('已刪除這筆帳');
+      toast('已刪除這筆帳', { label: '復原', run: () => setDeleted(false) });
     });
   });
 }
@@ -369,7 +390,12 @@ export function ledgerSettings() {
 
 // 分帳頁頂部的同步狀態
 function syncLine() {
-  if (!syncOn()) return '';
+  // 沒開同步：帳只在這支手機，很久沒匯出就提醒
+  if (!syncOn()) {
+    if (!liveCount() || !needsBackup()) return '';
+    return `<div class="sync-line is-warn">${icon('download')}<span>帳只存在這支手機，${state.meta.exportedAt ? '已經超過一天沒備份' : '還沒備份過'}</span>
+      <button class="link" data-act="export">匯出備份</button></div>`;
+  }
   return `<div class="sync-line is-${sync.status}">${icon('cloud')}<span>${esc(statusText())}</span>
     <button class="link" data-act="sync-now" ${sync.status === 'syncing' ? 'disabled' : ''}>立即同步</button></div>`;
 }

@@ -65,7 +65,8 @@ export function renderList() {
         <button class="btn primary" data-act="export">${icon('download')}匯出備份</button>
         <label class="btn">${icon('upload')}匯入備份<input type="file" accept="application/json,.json" data-act="import" hidden></label>
       </div>
-      <button class="link danger-link" data-act="reset">把行程還原成 Excel 版（帳本不受影響）</button>
+      <div class="danger-zone"><p class="fine">手機上改過的行程會全部被 Excel 版取代，帳本不受影響。</p>
+        <button class="btn danger" data-act="reset">${icon('swap')}把行程還原成 Excel 版</button></div>
     </section>`;
 }
 
@@ -77,7 +78,9 @@ export async function importFile(file) {
   try {
     const data = await parseBackup(file);
     const when = data.exportedAt ? new Date(data.exportedAt).toLocaleString('zh-TW') : '不明時間';
-    openSheet(`<header class="sh-head"><div><h2>用備份檔取代目前的資料？</h2><p class="sh-meta">備份時間：${esc(when)}</p></div></header>
+    const stops = data.trip.stops.length;
+    const entries = (data.ledger?.entries || []).filter((x) => !x.deleted).length;
+    openSheet(`<header class="sh-head"><div><h2>用備份檔取代目前的資料？</h2><p class="sh-meta">備份時間：${esc(when)}・行程 ${stops} 站・帳 ${entries} 筆</p></div></header>
       <p class="sheet-text">目前手機上的行程和帳會被這個備份檔整個取代，取代後無法復原。不確定的話，先按「匯出目前資料」留一份。</p>
       <footer class="sh-foot"><button class="btn" id="exp-first">${icon('download')}匯出目前資料</button><button class="btn danger" id="do-restore">取代</button></footer>
       <button class="link" data-close>取消</button>`, (d) => {

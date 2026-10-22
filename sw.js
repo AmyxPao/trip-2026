@@ -1,5 +1,5 @@
 // 離線：第一次打開就把整個 App（含行程資料與路線圖）存進快取，之後先用快取
-const VERSION = 'hokuriku-v7';
+const VERSION = 'hokuriku-v8';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/store.js', 'js/trip.js', 'js/ledger.js', 'js/ui.js', 'js/icons.js',

@@ -107,3 +107,28 @@ export function phoneOf(s) {
   }
   return null;
 }
+
+// 這一列要導航去哪：一般站點去自己；交通段去「下一個有地點的站」
+// 回傳 { q: 搜尋字串, label: 按鈕上顯示的名稱 } 或 null
+export function destination(trip, s) {
+  const own = placeQuery(trip, s);
+  if (own) return { q: own, label: isMove(s) || s.type === '住宿' ? '住處' : cleanName(s.name) };
+  if (!isMove(s)) return null;
+  const list = stopsOf(trip, s.day);
+  for (const t of list.slice(list.indexOf(s) + 1)) {
+    const q = placeQuery(trip, t);
+    if (q) return { q, label: isMove(t) || t.type === '住宿' ? '住處' : cleanName(t.name) };
+  }
+  return null;
+}
+
+// 一天裡第一個「時刻比前一站早」的地方；沒有就回 null
+export function timeOrderIssue(trip, n) {
+  let prev = null;
+  for (const s of stopsOf(trip, n)) {
+    if (!s.time) continue;
+    if (prev && s.time < prev.time) return { before: prev, after: s };
+    prev = s;
+  }
+  return null;
+}

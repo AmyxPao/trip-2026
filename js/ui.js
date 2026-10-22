@@ -18,8 +18,12 @@ export function stamp(ch, tone, { size = 34, seed = ch, cls = '', label = '' } =
 // ---------- 底部面板（dialog） ----------
 const dlg = () => document.getElementById('sheet');
 
+let closeTimer;
 export function openSheet(html, bind) {
   const d = dlg();
+  // 前一個面板還在關閉動畫中就要開新的：取消那次關閉
+  clearTimeout(closeTimer);
+  d.classList.remove('closing');
   d.innerHTML = `<div class="sheet-inner">${html}</div>`;
   d.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeSheet));
   if (!d.open) d.showModal();
@@ -30,7 +34,7 @@ export function closeSheet() {
   const d = dlg();
   if (!d.open) return;
   d.classList.add('closing');
-  setTimeout(() => { d.classList.remove('closing'); d.close(); d.innerHTML = ''; }, 180);
+  closeTimer = setTimeout(() => { d.classList.remove('closing'); d.close(); d.innerHTML = ''; }, 180);
 }
 export function initSheet() {
   const d = dlg();
@@ -50,11 +54,20 @@ export function confirmTap(btn, run, text = '再按一次確認刪除') {
   });
 }
 
+// 提示訊息；給 action 時多一顆按鈕（例如「復原」），並停留久一點
 let toastTimer;
-export function toast(msg) {
+export function toast(msg, action) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = `<span>${esc(msg)}</span>`;
+  t.classList.toggle('has-action', Boolean(action));
+  if (action) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = action.label;
+    b.addEventListener('click', () => { t.classList.remove('show'); action.run(); });
+    t.appendChild(b);
+  }
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), action ? 6000 : 2600);
 }

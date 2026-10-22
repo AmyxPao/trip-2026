@@ -23,7 +23,13 @@ let lastRoute = '';
 function route() {
   const h = location.hash.replace(/^#/, '') || '/';
   const m = h.match(/^\/day\/(\d+)/);
-  if (m) return { tab: 'overview', view: 'day', n: Number(m[1]) };
+  if (m) {
+    // 點進的剛好是今天那天，分頁亮「今天」
+    const n = Number(m[1]);
+    const t = state.trip;
+    const today = t && phase(t) === 'during' ? todayDay(t) : null;
+    return { tab: today && today.n === n ? 'today' : 'overview', view: 'day', n };
+  }
   if (h.startsWith('/today')) return { tab: 'today', view: 'today' };
   if (h.startsWith('/map')) return { tab: 'map', view: 'map' };
   if (h.startsWith('/ledger')) return { tab: 'ledger', view: 'ledger' };
@@ -77,10 +83,10 @@ function onClick(e) {
     case 'edit-stop': editStop(id); break;
     case 'add-stop': editStop(null, Number(t.dataset.day)); break;
     case 'move': moveStop(id, Number(t.dataset.dir)); break;
-    case 'toggle-edit': toggleEdit(); render(); break;
+    case 'toggle-edit': toggleEdit(Number(document.querySelector('.timeline')?.dataset.day)); render(); break;
     case 'export': doExport(); break;
     case 'ledger-tab': setLedgerTab(t.dataset.tab); render(); break;
-    case 'new-entry': editEntry(null); break;
+    case 'new-entry': editEntry(null, { date: t.dataset.date }); break;
     case 'edit-entry': editEntry(id); break;
     case 'ledger-settings': ledgerSettings(); break;
     case 'settle': settle(true); break;

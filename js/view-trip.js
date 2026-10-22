@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { esc, openSheet, closeSheet, confirmTap, toast } from './ui.js';
 import {
   STATUS, TYPES, phase, daysUntil, todayDay, stopsOf, isMove, nextStop, md, weekday,
-  placeQuery, navUrl, routeUrls, phoneOf, lodgingFor,
+  navUrl, routeUrls, phoneOf, lodgingFor, destination, timeOrderIssue, nowHM,
 } from './trip.js';
 
 const ui = { editing: false };
@@ -25,8 +25,11 @@ function masthead(trip) {
   } else if (ph === 'during') {
     const d = todayDay(trip);
     const nx = d && nextStop(trip, d.n);
-    stateHtml = `<a class="now" href="#/today"><span class="now-day">今天 · DAY <b class="num">${d.n}</b></span>
-      <span class="now-next">${nx ? `下一站 <b class="num">${esc(nx.time)}</b> ${esc(nx.name.replace(/^★\s*/, ''))}` : '今天的行程走完了'}</span>${icon('next')}</a>`;
+    const dest = nx && destination(trip, nx);
+    const tel = nx && phoneOf(nx);
+    stateHtml = `<div class="now-card"><a class="now" href="#/today"><span class="now-day">今天 · DAY <b class="num">${d.n}</b></span>
+      <span class="now-next">${nx ? `下一站 <b class="num">${esc(nx.time)}</b> ${esc(nx.name.replace(/^★\s*/, ''))}` : '今天的行程走完了'}</span>${icon('next')}</a>
+      ${dest || tel ? `<div class="now-acts">${dest ? `<a class="btn primary" href="${esc(navUrl(dest.q))}" target="_blank" rel="noopener">${icon('nav')}導航</a>` : ''}${tel ? `<a class="btn" href="tel:${esc(tel.replace(/-/g, ''))}">${icon('phone')}撥電話</a>` : ''}</div>` : ''}</div>`;
   } else {
     stateHtml = `<a class="now" href="#/ledger"><span class="now-day">旅程結束，歡迎回家</span><span class="now-next">看分帳結算</span>${icon('next')}</a>`;
   }
@@ -77,22 +80,29 @@ export function renderDay(n, { isToday = false } = {}) {
   const banner = isToday && ph !== 'during'
     ? `<p class="banner">${ph === 'pre' ? `還沒出發（${daysUntil(trip)} 天後）。出發當天這裡會直接顯示當天行程，現在先看 DAY 1。` : '旅程已經結束，這是最後一天的行程。'}</p>` : '';
 
+  const hm = nowHM();
+  const navBtn = (s) => {
+    if (ui.editing) return '';
+    const dest = destination(trip, s);
+    return dest ? `<a class="icon-btn tl-nav" href="${esc(navUrl(dest.q))}" target="_blank" rel="noopener" aria-label="導航到${esc(dest.label)}">${icon('nav')}</a>` : '';
+  };
   const list = stops.map((s, i) => {
+    const past = live && s.time && s.time < hm && !(nx && nx.id === s.id) ? ' is-past' : '';
     const ctl = ui.editing ? `<span class="tl-ctl">
         <button class="icon-btn" data-act="move" data-id="${s.id}" data-dir="-1" aria-label="上移" ${i === 0 ? 'disabled' : ''}>${icon('up')}</button>
         <button class="icon-btn" data-act="move" data-id="${s.id}" data-dir="1" aria-label="下移" ${i === stops.length - 1 ? 'disabled' : ''}>${icon('down')}</button>
         <span class="grip" data-grip="${s.id}" aria-hidden="true">${icon('grip')}</span>
       </span>` : '';
     if (isMove(s)) {
-      return `<li class="tl tl-move" data-id="${s.id}">
+      return `<li class="tl tl-move${past}" data-id="${s.id}">
         <button class="tl-hit" data-act="${ui.editing ? 'edit-stop' : 'open-stop'}" data-id="${s.id}">
           <span class="tl-time num">${esc(s.time)}</span>
           <span class="tl-move-text">${icon('car')}<span>${esc(s.name)}</span></span>
-        </button>${ctl}</li>`;
+        </button>${navBtn(s)}${ctl}</li>`;
     }
     const isNext = nx && nx.id === s.id;
     const meta = [s.hours && `營業 ${s.hours}`, s.closed && /休/.test(s.closed) && s.closed].filter(Boolean).join(' · ');
-    return `<li class="tl tl-stop ${isNext ? 'is-next' : ''}" data-id="${s.id}">
+    return `<li class="tl tl-stop${isNext ? ' is-next' : ''}${past}" data-id="${s.id}">
       <button class="tl-hit" data-act="${ui.editing ? 'edit-stop' : 'open-stop'}" data-id="${s.id}">
         <span class="tl-time num">${esc(s.time)}${isNext ? '<em>下一站</em>' : ''}</span>
         <span class="tl-body">
@@ -100,7 +110,7 @@ export function renderDay(n, { isToday = false } = {}) {
           ${s.ja && s.ja !== s.name ? `<span class="tl-ja" lang="ja">${esc(s.ja)}</span>` : ''}
           ${meta ? `<span class="tl-meta">${esc(meta)}</span>` : ''}
         </span>
-      </button>${ctl}</li>`;
+      </button>${isNext ? navBtn(s) : ''}${ctl}</li>`;
   }).join('');
 
   const notes = [d.note && ['注意', d.note], d.backup && ['備案', d.backup]].filter(Boolean)
@@ -118,7 +128,7 @@ export function renderDay(n, { isToday = false } = {}) {
     <h1>${esc(d.title)}</h1>
     <p class="dh-stay">${icon('stay')}住 ${esc(d.stay)}</p>
     ${notes ? `<dl class="day-notes">${notes}</dl>` : ''}
-    ${!ui.editing && routes.length ? `<div class="day-actions">${routes.map((u, i) => `<a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${icon('route')}今日路線${routes.length > 1 ? ` <span class="num">${i + 1}/${routes.length}</span>` : ''}</a>`).join('')}</div>` : ''}
+    ${!ui.editing ? `<div class="day-actions">${routes.map((u, i) => `<a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${icon('route')}今日路線${routes.length > 1 ? ` <span class="num">${i + 1}/${routes.length}</span>` : ''}</a>`).join('')}<button class="btn" data-act="new-entry" data-date="${d.date}">${icon('wallet')}記一筆</button></div>` : ''}
   </section>
   <ol class="timeline ${ui.editing ? 'editing' : ''}" data-day="${n}">${list}</ol>
   ${ui.editing ? `<div class="add-row"><button class="btn" data-act="add-stop" data-day="${n}">${icon('plus')}新增一站</button></div>` : ''}
@@ -145,7 +155,7 @@ function linkField(label, url) {
 export function openStop(id) {
   const s = state.trip.stops.find((x) => x.id === id);
   if (!s) return;
-  const q = placeQuery(state.trip, s);
+  const dest = destination(state.trip, s);
   const tel = phoneOf(s);
   const st = STATUS[s.status] || STATUS.na;
   const time = [s.time, s.stay ? `停留約 ${s.stay} 分` : ''].filter(Boolean).join(' · ');
@@ -155,7 +165,7 @@ export function openStop(id) {
       <p class="sh-meta num">DAY ${s.day} · ${esc(time)} · ${esc(s.type)}</p></div>
     </header>
     <div class="sh-actions">
-      ${q ? `<a class="btn primary" href="${esc(navUrl(q))}" target="_blank" rel="noopener">${icon('nav')}導航</a>` : '<span class="muted">地點未定，沒有導航</span>'}
+      ${dest ? `<a class="btn primary" href="${esc(navUrl(dest.q))}" target="_blank" rel="noopener">${icon('nav')}導航到${esc(dest.label)}</a>` : '<span class="muted">目的地未定，填上日文名稱或地址就能導航</span>'}
       ${tel ? `<a class="btn" href="tel:${esc(tel.replace(/-/g, ''))}">${icon('phone')}${esc(tel)}</a>` : ''}
     </div>
     <dl class="kvs">
@@ -242,9 +252,11 @@ export function editStop(id, newForDay) {
     });
     const del = d.querySelector('#del');
     if (del) confirmTap(del, () => {
-      commit(({ trip: t }) => { t.stops = t.stops.filter((x) => x.id !== s.id); });
+      const at = state.trip.stops.findIndex((x) => x.id === s.id);
+      const removed = state.trip.stops[at];
+      commit(({ trip: t }) => { t.stops.splice(at, 1); });
       closeSheet();
-      toast('已刪除這一站');
+      toast('已刪除這一站', { label: '復原', run: () => commit(({ trip: t }) => { t.stops.splice(Math.min(at, t.stops.length), 0, removed); }) });
     });
   });
 }
@@ -309,7 +321,13 @@ function bindDrag() {
   });
 }
 
-export function toggleEdit() { ui.editing = !ui.editing; }
+// 按「完成」離開編輯時，檢查時刻有沒有由早到晚
+export function toggleEdit(n) {
+  ui.editing = !ui.editing;
+  if (ui.editing || !n) return;
+  const issue = timeOrderIssue(state.trip, n);
+  if (issue) toast(`時刻順序不對：${issue.after.time}「${issue.after.name.replace(/^★\s*/, '').slice(0, 10)}」排在 ${issue.before.time} 之後，請確認時間`);
+}
 
 export function doExport() {
   const name = exportBackup();
