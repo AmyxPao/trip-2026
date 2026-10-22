@@ -48,7 +48,7 @@ export function renderOverview() {
     const all = stopsOf(trip, d.n);
     const n = all.filter((s) => !isMove(s)).length;
     const count = n ? `${n} 站` : `${all.length} 段交通`;
-    const stay = /^—/.test(d.stay) ? '' : `${icon('stay')}${esc(shortStay(d.stay))}<span class="dot">·</span>`;
+    const stay = !d.stay || /^—/.test(d.stay) ? '' : `${icon('stay')}${esc(shortStay(d.stay))}<span class="dot">·</span>`;
     const cls = today && d.n === today.n ? 'is-today' : (today && d.n < today.n) || ph === 'post' ? 'is-past' : '';
     return `<li><a class="day-row ${cls}" href="#/day/${d.n}">
       <span class="dnum num"><small>DAY</small>${d.n}</span>
@@ -126,8 +126,9 @@ export function renderDay(n, { isToday = false } = {}) {
   <section class="day-head">
     <p class="dh-date"><span class="num">${md(d.date)}</span> 週${weekday(d.date)}</p>
     <h1>${esc(d.title)}</h1>
-    <p class="dh-stay">${icon('stay')}住 ${esc(d.stay)}</p>
+    ${d.stay ? `<p class="dh-stay">${icon('stay')}住 ${esc(d.stay)}</p>` : ''}
     ${notes ? `<dl class="day-notes">${notes}</dl>` : ''}
+    ${ui.editing ? `<div class="day-actions"><button class="btn" data-act="edit-day" data-day="${n}">${icon('edit')}改這一天的標題與住宿</button></div>` : ''}
     ${!ui.editing ? `<div class="day-actions">${routes.map((u, i) => `<a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${icon('route')}今日路線${routes.length > 1 ? ` <span class="num">${i + 1}/${routes.length}</span>` : ''}</a>`).join('')}<button class="btn" data-act="new-entry" data-date="${d.date}">${icon('wallet')}記一筆</button></div>` : ''}
   </section>
   <ol class="timeline ${ui.editing ? 'editing' : ''}" data-day="${n}">${list}</ol>
@@ -250,6 +251,42 @@ export function editStop(id, newForDay) {
       commit(({ trip: t }) => { t.stops.splice(at, 1); });
       closeSheet();
       toast('已刪除這一站', { label: '復原', run: () => commit(({ trip: t }) => { t.stops.splice(Math.min(at, t.stops.length), 0, removed); }) });
+    });
+  });
+}
+
+// ---------- 編輯一天：標題（主軸）、住宿、注意、備案 ----------
+export function editDay(n) {
+  const d = state.trip.days.find((x) => x.n === n);
+  if (!d) return;
+  openSheet(`
+    <header class="sh-head"><div><h2>改這一天</h2><p class="sh-meta">DAY ${n} · ${md(d.date)}（${weekday(d.date)}）</p></div>
+      <button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
+    <form class="form" id="day-form" novalidate>
+      <label class="f full"><span>標題（總覽和這一天頁首顯示的主軸）</span><input name="title" value="${esc(d.title)}" placeholder="例：新穗高纜車 → 道之驛上宝 → 高山購物中心"></label>
+      <label class="f full"><span>住宿</span><input name="stay" value="${esc(d.stay)}" placeholder="例：高山 Mine House（大新町）"></label>
+      <label class="f full"><span>注意</span><textarea name="note" rows="2">${esc(d.note)}</textarea></label>
+      <label class="f full"><span>備案</span><textarea name="backup" rows="2">${esc(d.backup)}</textarea></label>
+      <p class="form-err" role="alert" hidden></p>
+      <footer class="sh-foot sticky"><span></span><button type="submit" class="btn primary">儲存</button></footer>
+    </form>`, (dlgEl) => {
+    const f = dlgEl.querySelector('#day-form');
+    f.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const title = f.title.value.trim();
+      if (!title) {
+        const err = f.querySelector('.form-err');
+        err.textContent = '標題不能空白，寫這一天的主要路線就好，例如「高山 → 白川鄉 → 金澤」。';
+        err.hidden = false;
+        f.title.focus();
+        return;
+      }
+      commit(({ trip: t }) => {
+        const day = t.days.find((x) => x.n === n);
+        Object.assign(day, { title, stay: f.stay.value.trim(), note: f.note.value.trim(), backup: f.backup.value.trim() });
+      });
+      closeSheet();
+      toast('這一天已更新');
     });
   });
 }

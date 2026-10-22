@@ -3,11 +3,12 @@ import { icon } from './icons.js';
 import { initSheet, closeSheet, toast } from './ui.js';
 import { phase, todayDay } from './trip.js';
 import {
-  renderOverview, renderDay, afterDay, leaveDay, openStop, editStop, moveStop, toggleEdit, doExport,
+  renderOverview, renderDay, afterDay, leaveDay, openStop, editStop, editDay, moveStop, toggleEdit, doExport,
 } from './view-trip.js';
 import { renderLedger, afterLedger, setLedgerTab, editEntry, ledgerSettings, settle } from './view-ledger.js';
 import { renderMap, renderList, toggleCheck, importFile, confirmReset } from './view-misc.js';
 import { enabled as syncOn, run as runSync, onSync } from './sync.js';
+import { exportExcel } from './export-xlsx.js';
 
 const TABS = [
   ['overview', '#/', '總覽', 'overview'],
@@ -82,9 +83,11 @@ function onClick(e) {
     case 'open-stop': openStop(id); break;
     case 'edit-stop': editStop(id); break;
     case 'add-stop': editStop(null, Number(t.dataset.day)); break;
+    case 'edit-day': editDay(Number(t.dataset.day)); break;
     case 'move': moveStop(id, Number(t.dataset.dir)); break;
     case 'toggle-edit': toggleEdit(Number(document.querySelector('.timeline')?.dataset.day)); render(); break;
     case 'export': doExport(); break;
+    case 'export-xlsx': toast(`已匯出 ${exportExcel()}`); break;
     case 'ledger-tab': setLedgerTab(t.dataset.tab); render(); break;
     case 'new-entry': editEntry(null, { date: t.dataset.date }); break;
     case 'edit-entry': editEntry(id); break;

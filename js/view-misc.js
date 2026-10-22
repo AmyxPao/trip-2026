@@ -58,11 +58,12 @@ export function renderList() {
     <section class="block"><h2>住宿</h2>${lodging}</section>
     <section class="block"><h2>風險與季節</h2><ul class="risks">${risks}</ul></section>
     <section class="block" id="backup"><h2>資料與備份</h2>
-      <p class="fine">行程和帳都只存在這支手機的瀏覽器裡。清除瀏覽器資料或換手機前，先匯出備份檔，存到雲端硬碟或傳到 LINE。</p>
+      <p class="fine">「匯出 Excel」是給人看、列印或分享用的；要換手機或還原資料，請用「匯出備份」的 .json 檔，Excel 不能匯回來。行程和帳都只存在這支手機的瀏覽器裡。清除瀏覽器資料或換手機前，先匯出備份檔，存到雲端硬碟或傳到 LINE。</p>
       <dl class="kvs"><div class="kv"><dt>上次修改</dt><dd>${fmt(meta.modifiedAt)}</dd></div><div class="kv"><dt>上次備份</dt><dd>${fmt(meta.exportedAt)}</dd></div></dl>
       ${meta.storageOk ? '' : '<p class="form-err">這支手機的瀏覽器不讓網頁存資料（可能是無痕模式），修改在關掉後會消失。請改用一般模式開啟。</p>'}
       <div class="sh-actions">
         <button class="btn primary" data-act="export">${icon('download')}匯出備份</button>
+        <button class="btn" data-act="export-xlsx">${icon('download')}匯出 Excel</button>
         <label class="btn">${icon('upload')}匯入備份<input type="file" accept="application/json,.json" data-act="import" hidden></label>
       </div>
       <div class="danger-zone"><p class="fine">手機上改過的行程會全部被 Excel 版取代，帳本不受影響。</p>
