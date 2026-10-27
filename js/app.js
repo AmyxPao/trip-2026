@@ -3,7 +3,7 @@ import { icon } from './icons.js';
 import { initSheet, closeSheet, toast } from './ui.js';
 import { phase, todayDay } from './trip.js';
 import {
-  renderOverview, renderDay, afterDay, leaveDay, openStop, editStop, editDay, moveStop, toggleEdit, doExport,
+  renderOverview, renderDay, afterDay, leaveDay, openStop, editStop, editDay, editParking, moveStop, toggleEdit, doExport,
 } from './view-trip.js';
 import { renderLedger, afterLedger, setLedgerTab, editEntry, ledgerSettings, settle } from './view-ledger.js';
 import { renderMap, renderList, toggleCheck, importFile, confirmReset } from './view-misc.js';
@@ -84,6 +84,8 @@ function onClick(e) {
     case 'edit-stop': editStop(id); break;
     case 'add-stop': editStop(null, Number(t.dataset.day)); break;
     case 'edit-day': editDay(Number(t.dataset.day)); break;
+    case 'edit-parking': editParking(Number(t.dataset.day), id); break;
+    case 'add-parking': editParking(Number(t.dataset.day), null); break;
     case 'move': moveStop(id, Number(t.dataset.dir)); break;
     case 'toggle-edit': toggleEdit(Number(document.querySelector('.timeline')?.dataset.day)); render(); break;
     case 'export': doExport(); break;

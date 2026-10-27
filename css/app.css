@@ -277,6 +277,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .day-nav a { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-weight: 700; color: var(--ink-2); text-decoration: none; }
 .day-nav .ico { width: 18px; height: 18px; }
 
+.parking { margin-top: 8px; padding: 16px var(--gutter) 4px; border-top: 1px solid var(--rule); }
+.parking h2 { display: flex; align-items: center; gap: 6px; font-size: var(--fs-lead); font-weight: 800; }
+.parking h2 .ico { width: 20px; height: 20px; color: var(--navy-2); }
+.pk-list { list-style: none; padding: 0; margin-top: 6px; }
+.pk { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--rule); }
+.pk:last-child { border-bottom: 0; }
+.pk-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 0; }
+.pk-hit { text-align: left; border: 0; background: transparent; cursor: pointer; color: inherit; font: inherit; }
+.pk-hit:active { background: color-mix(in srgb, var(--navy) 5%, transparent); }
+.pk-name { font-size: var(--fs-body); font-weight: 700; line-height: 1.4; }
+.pk-fee { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }
+.pk-note { font-size: var(--fs-label); color: var(--ink-2); line-height: 1.5; }
+.pk-nav { flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--navy); color: var(--on-navy); }
+.pk-empty { padding: 8px 0; font-size: var(--fs-label); }
+.pk-add { padding: 8px 0; }
+
 /* ---------- 按鈕 ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 0 18px;
@@ -578,8 +594,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .app[data-view="day"] > .day-head, .app[data-view="today"] > .day-head {
     grid-column: 1; grid-row: 2 / span 8; position: sticky; top: 58px; border-bottom: 0; padding-top: 24px;
   }
-  .app[data-view="day"] > :is(.banner, .timeline, .add-row, .day-nav),
-  .app[data-view="today"] > :is(.banner, .timeline, .add-row, .day-nav) { grid-column: 2; }
+  .app[data-view="day"] > :is(.banner, .timeline, .add-row, .parking, .day-nav),
+  .app[data-view="today"] > :is(.banner, .timeline, .add-row, .parking, .day-nav) { grid-column: 2; }
   .app[data-view="day"] > .timeline, .app[data-view="today"] > .timeline { border-left: 1px solid var(--rule); padding-top: 12px; }
   .day-head h1 { font-size: var(--fs-title-lg); }
 

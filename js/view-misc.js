@@ -86,7 +86,7 @@ export async function importFile(file) {
       <footer class="sh-foot"><button class="btn" id="exp-first">${icon('download')}匯出目前資料</button><button class="btn danger" id="do-restore">取代</button></footer>
       <button class="link" data-close>取消</button>`, (d) => {
       d.querySelector('#exp-first').addEventListener('click', () => { exportBackup(); toast('已匯出目前資料'); });
-      d.querySelector('#do-restore').addEventListener('click', () => { restoreBackup(data); closeSheet(); toast('已從備份還原'); });
+      d.querySelector('#do-restore').addEventListener('click', async () => { await restoreBackup(data); closeSheet(); toast('已從備份還原'); });
     });
   } catch (err) {
     toast(err.message);

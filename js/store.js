@@ -51,12 +51,26 @@ export async function load() {
     state.trip = normalizeStops(saved.trip);
     state.ledger = { ...defaultLedger(), ...saved.ledger };
     state.meta = { ...state.meta, ...saved.meta };
+    if (await fillParking(state.trip)) writeLocal();
   } else {
     state.trip = normalizeStops(await fetchSeed());
     state.ledger = defaultLedger();
     writeLocal();
   }
   try { navigator.storage?.persist?.(); } catch { /* 不支援就算了 */ }
+}
+
+// 舊資料的每一天還沒有停車點：從 data/trip.json 帶入預設的停車場；已經有（含刪光的空清單）就不動
+async function fillParking(trip) {
+  const missing = trip.days.filter((d) => !Array.isArray(d.parking));
+  if (!missing.length) return false;
+  let seed = null;
+  try { seed = await fetchSeed(); } catch { /* 離線讀不到就先給空清單 */ }
+  for (const d of missing) {
+    const from = seed?.days.find((x) => x.n === d.n)?.parking;
+    d.parking = from ? structuredClone(from) : [];
+  }
+  return true;
 }
 
 async function fetchSeed() {
@@ -110,9 +124,11 @@ export async function parseBackup(file) {
   return data;
 }
 
-export function restoreBackup(data) {
+export async function restoreBackup(data) {
+  const trip = normalizeStops(data.trip);
+  await fillParking(trip);
   commit((s) => {
-    s.trip = normalizeStops(data.trip);
+    s.trip = trip;
     s.ledger = { ...defaultLedger(), ...data.ledger };
     s.meta.exportedAt = data.exportedAt || null;
   });

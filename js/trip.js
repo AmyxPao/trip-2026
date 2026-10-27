@@ -73,6 +73,11 @@ export function navUrl(q) {
   return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(q);
 }
 
+// 停車場導航：日文名稱最容易對到 Google Maps 上的停車場，其次地址
+export function parkingQuery(p) {
+  return p.ja || p.address || p.name || null;
+}
+
 // 手機版 Google Maps 一條路線最多 3 個中途點：每段 5 個點，段與段首尾相接
 export function routeUrls(trip, n) {
   const pts = [];
