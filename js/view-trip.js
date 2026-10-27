@@ -86,8 +86,12 @@ export function renderDay(n, { isToday = false } = {}) {
     const dest = destination(trip, s);
     return dest ? `<a class="icon-btn tl-nav" href="${esc(navUrl(dest.q))}" target="_blank" rel="noopener" aria-label="導航到${esc(dest.label)}">${icon('nav')}</a>` : '';
   };
+  const parking = d.parking || [];
   const list = stops.map((s, i) => {
     const past = live && s.time && s.time < hm && !(nx && nx.id === s.id) ? ' is-past' : '';
+    return stopRow(s, i, past) + parking.filter((p) => p.at === s.id).map((p) => parkingRow(d, p, past)).join('');
+  }).join('');
+  function stopRow(s, i, past) {
     const ctl = ui.editing ? `<span class="tl-ctl">
         <button class="icon-btn" data-act="move" data-id="${s.id}" data-dir="-1" aria-label="上移" ${i === 0 ? 'disabled' : ''}>${icon('up')}</button>
         <button class="icon-btn" data-act="move" data-id="${s.id}" data-dir="1" aria-label="下移" ${i === stops.length - 1 ? 'disabled' : ''}>${icon('down')}</button>
@@ -111,7 +115,8 @@ export function renderDay(n, { isToday = false } = {}) {
           ${meta ? `<span class="tl-meta">${esc(meta)}</span>` : ''}
         </span>
       </button>${isNext ? navBtn(s) : ''}${ctl}</li>`;
-  }).join('');
+  }
+  const loose = parking.filter((p) => !stops.some((s) => s.id === p.at));
 
   const notes = [d.note && ['注意', d.note], d.backup && ['備案', d.backup]].filter(Boolean)
     .map(([k, v]) => `<div class="dn"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('');
@@ -133,28 +138,37 @@ export function renderDay(n, { isToday = false } = {}) {
   </section>
   <ol class="timeline ${ui.editing ? 'editing' : ''}" data-day="${n}">${list}</ol>
   ${ui.editing ? `<div class="add-row"><button class="btn" data-act="add-stop" data-day="${n}">${icon('plus')}新增一站</button></div>` : ''}
-  ${parkingSection(d)}
+  ${parkingSection(d, loose)}
   ${!ui.editing ? `<nav class="day-nav">${n > 1 ? `<a href="#/day/${n - 1}">${icon('back')}DAY ${n - 1}</a>` : '<span></span>'}${n < trip.days.length ? `<a href="#/day/${n + 1}">DAY ${n + 1}${icon('next')}</a>` : ''}</nav>` : ''}`;
   return html;
 }
 
-// 時間軸下方的停車點：平常每一列有導航鈕；編輯時點一列就能改，最後有「新增停車點」
-function parkingSection(d) {
-  const list = d.parking || [];
-  if (!list.length && !ui.editing) return '';
-  const rows = list.map((p) => {
-    const body = `<span class="pk-name">${esc(p.name)}</span>
+function parkingBody(p) {
+  return `<span class="pk-name">${icon('parking')}${esc(p.name)}</span>
       ${p.fee ? `<span class="pk-fee">${esc(p.fee)}</span>` : ''}
       ${p.note ? `<span class="pk-note">${esc(p.note)}</span>` : ''}`;
-    if (ui.editing) {
-      return `<li class="pk"><button class="pk-body pk-hit" data-act="edit-parking" data-day="${d.n}" data-id="${p.id}">${body}</button></li>`;
-    }
-    const q = parkingQuery(p);
-    return `<li class="pk"><div class="pk-body">${body}</div>${q ? `<a class="icon-btn pk-nav" href="${esc(navUrl(q))}" target="_blank" rel="noopener" aria-label="導航到${esc(p.name)}">${icon('nav')}</a>` : ''}</li>`;
-  }).join('');
+}
+function parkingNav(p) {
+  const q = parkingQuery(p);
+  return q ? `<a class="icon-btn pk-nav" href="${esc(navUrl(q))}" target="_blank" rel="noopener" aria-label="導航到${esc(p.name)}">${icon('nav')}</a>` : '';
+}
+
+// 掛在某一站下面的停車點：時間軸裡縮排一列，平常有導航鈕，編輯時點了就能改
+function parkingRow(d, p, past) {
+  if (ui.editing) {
+    return `<li class="tl tl-park"><button class="pk-body pk-hit" data-act="edit-parking" data-day="${d.n}" data-id="${p.id}">${parkingBody(p)}</button></li>`;
+  }
+  return `<li class="tl tl-park${past}"><div class="pk-body">${parkingBody(p)}</div>${parkingNav(p)}</li>`;
+}
+
+// 沒指定站（或那一站被刪了）的停車點放在時間軸下方；編輯時這裡有「新增停車點」
+function parkingSection(d, loose) {
+  if (!loose.length && !ui.editing) return '';
+  const rows = loose.map((p) => (ui.editing
+    ? `<li class="pk"><button class="pk-body pk-hit" data-act="edit-parking" data-day="${d.n}" data-id="${p.id}">${parkingBody(p)}</button></li>`
+    : `<li class="pk"><div class="pk-body">${parkingBody(p)}</div>${parkingNav(p)}</li>`)).join('');
   return `<section class="parking">
-    <h2>${icon('parking')}停車點</h2>
-    ${rows ? `<ul class="pk-list">${rows}</ul>` : '<p class="muted pk-empty">這一天還沒有停車點。</p>'}
+    ${rows ? `<h2>其他停車點</h2><ul class="pk-list">${rows}</ul>` : ''}
     ${ui.editing ? `<div class="pk-add"><button class="btn" data-act="add-parking" data-day="${d.n}">${icon('plus')}新增停車點</button></div>` : ''}
   </section>`;
 }
@@ -165,13 +179,18 @@ export function editParking(n, id) {
   if (!day) return;
   const isNew = !id;
   const p = isNew
-    ? { id: uid('p'), name: '', ja: '', address: '', fee: '', note: '', source: '' }
+    ? { id: uid('p'), at: '', name: '', ja: '', address: '', fee: '', note: '', source: '' }
     : { ...day.parking.find((x) => x.id === id) };
+  const places = stopsOf(state.trip, n).filter((s) => !isMove(s));
   openSheet(`
     <header class="sh-head"><div><h2>${isNew ? '新增停車點' : '編輯停車點'}</h2><p class="sh-meta">DAY ${n} · ${md(day.date)}（${weekday(day.date)}）</p></div>
       <button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
     <form class="form" id="pk-form" novalidate>
       <label class="f full"><span>名稱</span><input name="name" value="${esc(p.name)}" placeholder="例：市營 神明停車場（三町老街）"></label>
+      <label class="f full"><span>放在哪一站下面</span><select name="at">
+        ${places.map((s) => `<option value="${s.id}" ${s.id === p.at ? 'selected' : ''}>${esc([s.time, s.name.replace(/^★\s*/, '')].filter(Boolean).join(' '))}</option>`).join('')}
+        <option value="" ${places.some((s) => s.id === p.at) ? '' : 'selected'}>不指定（放在時間軸最下面）</option>
+      </select></label>
       <label class="f full"><span>日文名稱（導航用）</span><input name="ja" value="${esc(p.ja)}" placeholder="例：市営神明駐車場"></label>
       <label class="f full"><span>地址（沒有日文名稱時用來導航）</span><input name="address" value="${esc(p.address)}"></label>
       <label class="f full"><span>停車費</span><input name="fee" value="${esc(p.fee)}" placeholder="例：每 30 分 150 円"></label>
@@ -187,7 +206,7 @@ export function editParking(n, id) {
     f.addEventListener('submit', (ev) => {
       ev.preventDefault();
       const next = { ...p };
-      for (const k of ['name', 'ja', 'address', 'fee', 'note', 'source']) next[k] = f[k].value.trim();
+      for (const k of ['at', 'name', 'ja', 'address', 'fee', 'note', 'source']) next[k] = f[k].value.trim();
       if (!next.name) {
         const err = f.querySelector('.form-err');
         err.textContent = '請填停車場名稱，例如「市營 神明停車場」。';
@@ -204,12 +223,12 @@ export function editParking(n, id) {
     });
     const del = dlgEl.querySelector('#del');
     if (del) confirmTap(del, () => {
-      const at = day.parking.findIndex((x) => x.id === p.id);
-      const removed = day.parking[at];
+      const idx = day.parking.findIndex((x) => x.id === p.id);
+      const removed = day.parking[idx];
       const listOf = (t) => t.days.find((x) => x.n === n).parking;
-      commit(({ trip: t }) => { listOf(t).splice(at, 1); });
+      commit(({ trip: t }) => { listOf(t).splice(idx, 1); });
       closeSheet();
-      toast('已刪除這個停車點', { label: '復原', run: () => commit(({ trip: t }) => { listOf(t).splice(Math.min(at, listOf(t).length), 0, removed); }) });
+      toast('已刪除這個停車點', { label: '復原', run: () => commit(({ trip: t }) => { listOf(t).splice(Math.min(idx, listOf(t).length), 0, removed); }) });
     });
   });
 }
@@ -418,7 +437,7 @@ function bindDrag() {
       const up = () => {
         g.removeEventListener('pointermove', move);
         li.classList.remove('dragging');
-        const ids = [...list.children].map((x) => x.dataset.id);
+        const ids = [...list.children].map((x) => x.dataset.id).filter(Boolean);
         commit(({ trip: t }) => reorderDay(t, Number(list.dataset.day), ids));
       };
       g.addEventListener('pointermove', move);

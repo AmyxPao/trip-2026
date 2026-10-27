@@ -277,20 +277,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .day-nav a { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-weight: 700; color: var(--ink-2); text-decoration: none; }
 .day-nav .ico { width: 18px; height: 18px; }
 
+/* 停車點：掛在站底下的縮排列（對齊站名那一欄），以及時間軸下方「其他停車點」 */
+.tl-park { align-items: center; padding: 0 6px 8px calc(var(--gutter) + 72px); }
+.timeline.editing .tl-park { padding-left: calc(var(--gutter) + 62px); padding-right: var(--gutter); }
+.tl-park .pk-body { padding: 8px 10px; border-left: 2px solid var(--rule-strong); background: color-mix(in srgb, var(--navy) 4%, transparent); border-radius: 0 8px 8px 0; }
+.tl-park + .tl-park { margin-top: -2px; }
+.tl-park + .tl-stop .tl-hit { border-top: 1px solid var(--rule); }
+.tl-park.is-past .pk-name, .tl-park.is-past .pk-fee { color: var(--ink-3); }
 .parking { margin-top: 8px; padding: 16px var(--gutter) 4px; border-top: 1px solid var(--rule); }
-.parking h2 { display: flex; align-items: center; gap: 6px; font-size: var(--fs-lead); font-weight: 800; }
-.parking h2 .ico { width: 20px; height: 20px; color: var(--navy-2); }
+.parking h2 { font-size: var(--fs-lead); font-weight: 800; }
 .pk-list { list-style: none; padding: 0; margin-top: 6px; }
 .pk { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--rule); }
 .pk:last-child { border-bottom: 0; }
 .pk-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 0; }
 .pk-hit { text-align: left; border: 0; background: transparent; cursor: pointer; color: inherit; font: inherit; }
 .pk-hit:active { background: color-mix(in srgb, var(--navy) 5%, transparent); }
-.pk-name { font-size: var(--fs-body); font-weight: 700; line-height: 1.4; }
+.pk-name { display: flex; align-items: flex-start; gap: 5px; font-size: var(--fs-small); font-weight: 700; line-height: 1.4; }
+.pk-name .ico { flex: none; width: 17px; height: 17px; margin-top: 1px; color: var(--navy-2); }
+@media (prefers-color-scheme: dark) { .pk-name .ico { color: var(--ink-2); } }
 .pk-fee { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }
 .pk-note { font-size: var(--fs-label); color: var(--ink-2); line-height: 1.5; }
-.pk-nav { flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--navy); color: var(--on-navy); }
-.pk-empty { padding: 8px 0; font-size: var(--fs-label); }
+.pk-nav { flex: none; width: 44px; height: 44px; margin-left: 6px; border-radius: 12px; background: var(--navy); color: var(--on-navy); }
 .pk-add { padding: 8px 0; }
 
 /* ---------- 按鈕 ---------- */

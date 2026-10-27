@@ -21,8 +21,9 @@ export function exportExcel() {
       return [`DAY ${s.day}`, d ? dayLabel(d.date) : '', s.time, s.stay ?? '', s.type, s.name, s.ja, s.intro, s.reason, s.hours, s.closed, s.fee, s.note, s.address, s.phone, s.source, s.verifySource];
     })];
 
-  const parking = [['天', '日期', '停車場', '日文名稱', '地址', '停車費', '備註', '資料來源'],
-    ...trip.days.flatMap((d) => (d.parking || []).map((p) => [`DAY ${d.n}`, dayLabel(d.date), p.name, p.ja, p.address, p.fee, p.note, p.source]))];
+  const stopName = (id) => trip.stops.find((s) => s.id === id)?.name || '';
+  const parking = [['天', '日期', '放在哪一站下面', '停車場', '日文名稱', '地址', '停車費', '備註', '資料來源'],
+    ...trip.days.flatMap((d) => (d.parking || []).map((p) => [`DAY ${d.n}`, dayLabel(d.date), stopName(p.at), p.name, p.ja, p.address, p.fee, p.note, p.source]))];
 
   const lodgeKeys = [...new Set(trip.lodging.flatMap((l) => Object.keys(l)))];
   const lodging = [['項目', ...trip.lodging.map((l) => l['名稱'] || '')],
@@ -58,7 +59,7 @@ export function exportExcel() {
   const blob = buildXlsx([
     { name: '總覽', cols: [8, 14, 40, 26, 36, 36], rows: overview },
     { name: '每日行程', cols: [8, 12, 7, 8, 7, 34, 22, 40, 24, 22, 20, 16, 44, 30, 14, 30, 30], rows: stops },
-    { name: '停車點', cols: [8, 12, 34, 26, 30, 36, 50, 30], rows: parking },
+    { name: '停車點', cols: [8, 12, 24, 34, 26, 30, 36, 50, 30], rows: parking },
     { name: '住宿', cols: [10, 50, 50], rows: lodging },
     { name: '出發前清單', cols: [16, 50, 6, 24], rows: checklist },
     { name: '帳本', cols: [20, 10, 10, 6, 10, 12, 8, 14, 10, 30, 10], rows: book },

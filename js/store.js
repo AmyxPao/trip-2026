@@ -61,17 +61,24 @@ export async function load() {
 }
 
 // 停車點只從 data/trip.json 帶入一次：沒有停車點（或是空的）的天補上預設停車場，補過就記 parkingSeeded，
-// 之後使用者刪光也不會再補。讀不到、或讀到的是還沒有停車點的舊快取，就先不動，下次打開再試
+// 之後使用者刪光也不會再補。舊版帶入的停車點沒有 at（放在哪一站下面），照 data/trip.json 同 id 的補上。
+// 讀不到、或讀到的是還沒有這些欄位的舊快取，就先不動，下次打開再試
 async function fillParking(trip) {
-  if (trip.parkingSeeded) return;
+  const noAt = trip.days.flatMap((d) => d.parking || []).filter((p) => p.at === undefined);
+  if (trip.parkingSeeded && !noAt.length) return;
   let seed;
   try { seed = await fetchSeed(); } catch { return; }
-  if (!seed.days.every((d) => Array.isArray(d.parking))) return;
-  for (const d of trip.days) {
-    if (d.parking?.length) continue;
-    d.parking = structuredClone(seed.days.find((x) => x.n === d.n)?.parking || []);
+  const seedParking = seed.days.flatMap((d) => d.parking || []);
+  if (!seed.days.every((d) => Array.isArray(d.parking)) || seedParking.some((p) => p.at === undefined)) return;
+  if (!trip.parkingSeeded) {
+    for (const d of trip.days) {
+      if (d.parking?.length) continue;
+      d.parking = structuredClone(seed.days.find((x) => x.n === d.n)?.parking || []);
+    }
+    trip.parkingSeeded = true;
   }
-  trip.parkingSeeded = true;
+  const atOf = new Map(seedParking.map((p) => [p.id, p.at]));
+  for (const p of noAt) p.at = atOf.get(p.id) || '';
 }
 
 async function fetchSeed() {
