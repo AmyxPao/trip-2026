@@ -12,7 +12,7 @@ import { exportExcel } from './export-xlsx.js';
 
 const TABS = [
   ['overview', '#/', '總覽', 'overview'],
-  ['today', '#/today', '今天', 'today'],
+  ['today', '#/today', '每日行程', 'today'],
   ['map', '#/map', '地圖', 'map'],
   ['ledger', '#/ledger', '分帳', 'wallet'],
   ['list', '#/list', '清單', 'list'],
@@ -25,7 +25,7 @@ function route() {
   const h = location.hash.replace(/^#/, '') || '/';
   const m = h.match(/^\/day\/(\d+)/);
   if (m) {
-    // 點進的剛好是今天那天，分頁亮「今天」
+    // 點進的剛好是今天那天，分頁亮「每日行程」
     const n = Number(m[1]);
     const t = state.trip;
     const today = t && phase(t) === 'during' ? todayDay(t) : null;
