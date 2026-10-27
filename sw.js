@@ -1,5 +1,5 @@
 // 離線：第一次打開就把整個 App（含行程資料與路線圖）存進快取，之後先用快取
-const VERSION = 'hokuriku-v13';
+const VERSION = 'hokuriku-v14';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/store.js', 'js/trip.js', 'js/ledger.js', 'js/ui.js', 'js/icons.js',
@@ -12,7 +12,8 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' 跳過瀏覽器的 HTTP 快取（GitHub Pages 給 10 分鐘），不然新版本可能存到舊檔案
+  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {

@@ -51,26 +51,27 @@ export async function load() {
     state.trip = normalizeStops(saved.trip);
     state.ledger = { ...defaultLedger(), ...saved.ledger };
     state.meta = { ...state.meta, ...saved.meta };
-    if (await fillParking(state.trip)) writeLocal();
   } else {
     state.trip = normalizeStops(await fetchSeed());
     state.ledger = defaultLedger();
-    writeLocal();
   }
+  await fillParking(state.trip);
+  writeLocal();
   try { navigator.storage?.persist?.(); } catch { /* 不支援就算了 */ }
 }
 
-// 舊資料的每一天還沒有停車點：從 data/trip.json 帶入預設的停車場；已經有（含刪光的空清單）就不動
+// 停車點只從 data/trip.json 帶入一次：沒有停車點（或是空的）的天補上預設停車場，補過就記 parkingSeeded，
+// 之後使用者刪光也不會再補。讀不到、或讀到的是還沒有停車點的舊快取，就先不動，下次打開再試
 async function fillParking(trip) {
-  const missing = trip.days.filter((d) => !Array.isArray(d.parking));
-  if (!missing.length) return false;
-  let seed = null;
-  try { seed = await fetchSeed(); } catch { /* 離線讀不到就先給空清單 */ }
-  for (const d of missing) {
-    const from = seed?.days.find((x) => x.n === d.n)?.parking;
-    d.parking = from ? structuredClone(from) : [];
+  if (trip.parkingSeeded) return;
+  let seed;
+  try { seed = await fetchSeed(); } catch { return; }
+  if (!seed.days.every((d) => Array.isArray(d.parking))) return;
+  for (const d of trip.days) {
+    if (d.parking?.length) continue;
+    d.parking = structuredClone(seed.days.find((x) => x.n === d.n)?.parking || []);
   }
-  return true;
+  trip.parkingSeeded = true;
 }
 
 async function fetchSeed() {
