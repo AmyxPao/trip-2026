@@ -134,7 +134,7 @@ export function renderDay(n, { isToday = false } = {}) {
     ${d.stay ? `<p class="dh-stay">${icon('stay')}住 ${esc(d.stay)}</p>` : ''}
     ${notes ? `<dl class="day-notes">${notes}</dl>` : ''}
     ${ui.editing ? `<div class="day-actions"><button class="btn" data-act="edit-day" data-day="${n}">${icon('edit')}改這一天的標題與住宿</button></div>` : ''}
-    ${!ui.editing ? `<div class="day-actions">${routes.map((u, i) => `<a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${icon('route')}今日路線${routes.length > 1 ? ` <span class="num">${i + 1}/${routes.length}</span>` : ''}</a>`).join('')}<button class="btn" data-act="new-entry" data-date="${d.date}">${icon('wallet')}記一筆</button></div>` : ''}
+    ${!ui.editing ? `<div class="day-actions">${routes.map((u, i) => `<a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${icon('route')}今日路線${routes.length > 1 ? ` <span class="num">${i + 1}/${routes.length}</span>` : ''}</a>`).join('')}<button class="btn" data-act="new-entry" data-date="${d.date}">${icon('wallet')}記帳</button></div>` : ''}
   </section>
   <ol class="timeline ${ui.editing ? 'editing' : ''}" data-day="${n}">${list}</ol>
   ${ui.editing ? `<div class="add-row"><button class="btn" data-act="add-stop" data-day="${n}">${icon('plus')}新增一站</button></div>` : ''}

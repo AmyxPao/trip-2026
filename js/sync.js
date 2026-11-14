@@ -1,6 +1,7 @@
-// 帳本雲端同步：送出有改過的帳（_dirty），再把 Google Sheet 上的整本帳拉回來合併
+// 雲端同步（自架的 server/TripSync）：送出有改過的帳與停車點（_dirty），再把伺服器上的全部拉回來合併
 // 網址與密語只存在這個瀏覽器，不進備份檔、不進 repo
 import { state, commit } from './store.js';
+import { normalizeLedger } from './ledger.js';
 
 const KEY = 'hokuriku-sync-v1';
 const listeners = new Set();
@@ -16,7 +17,9 @@ function emit() { listeners.forEach((fn) => fn()); }
 export function onSync(fn) { listeners.add(fn); }
 
 export const enabled = () => Boolean(sync.url && sync.secret);
-export const pendingCount = () => (state.ledger?.entries || []).filter((e) => e._dirty).length + (state.ledger?._settingsDirty ? 1 : 0);
+const allParking = (trip) => (trip?.days || []).flatMap((d) => (d.parking || []).map((p) => [d.n, p]));
+export const pendingCount = () => (state.ledger?.entries || []).filter((e) => e._dirty).length + (state.ledger?._settingsDirty ? 1 : 0)
+  + allParking(state.trip).filter(([, p]) => p._dirty).length;
 
 export function configure(url, secret) {
   sync.url = url.trim();
@@ -57,28 +60,23 @@ async function doRun() {
   // 舊版留下、還沒有 updatedAt 的帳，第一次同步時一併送上去
   for (const e of L.entries) if (!e.updatedAt) { e.updatedAt = new Date().toISOString(); e._dirty = true; }
   const sent = L.entries.filter((e) => e._dirty).map(strip);
+  // 停車點沒有 updatedAt 的是 data/trip.json 帶入、沒改過的，不送
+  const sentParking = allParking(state.trip).filter(([, p]) => p._dirty).map(([n, p]) => ({ ...strip(p), n }));
   const settings = L._settingsDirty || !L.settingsUpdatedAt
     ? { data: Object.fromEntries(SETTINGS_KEYS.map((k) => [k, L[k]])), updatedAt: L.settingsUpdatedAt || '' } : null;
-  const labels = {
-    cats: Object.fromEntries(L.categories.map((c) => [c.id, c.name])),
-    cards: Object.fromEntries(L.cards.map((c) => [c.id, c.name])),
-    names: L.names,
-  };
   sync.status = 'syncing';
   emit();
   let res;
   try {
     const r = await fetch(sync.url, {
       method: 'POST',
-      // text/plain 不會觸發 CORS 預檢，Apps Script 才收得到
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ secret: sync.secret, op: 'sync', entries: sent, settings, labels }),
-      redirect: 'follow',
+      headers: { 'Content-Type': 'application/json', 'X-Trip-Secret': sync.secret },
+      body: JSON.stringify({ entries: sent, parking: sentParking, settings }),
     });
-    res = await r.json();
+    res = r.status === 429 ? { ok: false, error: '嘗試太多次，請過一分鐘再試。' } : await r.json();
   } catch {
     sync.status = 'error';
-    sync.message = '連不到 Google Sheet。請確認網址是「網頁應用程式網址」，並且部署時「誰可以存取」選「任何人」。';
+    sync.message = '連不到同步伺服器。請確認網址正確、伺服器有開著。';
     emit();
     return;
   }
@@ -89,7 +87,9 @@ async function doRun() {
     return;
   }
   const sentAt = new Map(sent.map((e) => [e.id, e.updatedAt]));
-  commit(({ ledger }) => {
+  const sentParkingAt = new Map(sentParking.map((p) => [p.id, p.updatedAt]));
+  commit(({ ledger, trip }) => {
+    mergeParking(trip, res.parking || [], sentParkingAt);
     // 送出後沒再改過的，清掉待上傳記號
     for (const e of ledger.entries) if (e._dirty && sentAt.get(e.id) === e.updatedAt) delete e._dirty;
     const byId = new Map(ledger.entries.map((e) => [e.id, e]));
@@ -104,12 +104,28 @@ async function doRun() {
       ledger.settingsUpdatedAt = rs.updatedAt;
     }
     if (settings) delete ledger._settingsDirty;
+    // 伺服器上可能還是舊的兩方格式（mate、half…），合併完統一轉成三方
+    normalizeLedger(ledger);
   });
   sync.status = 'ok';
   sync.message = '';
   sync.lastSync = new Date().toISOString();
   save();
   emit();
+}
+
+function mergeParking(trip, remote, sentAt) {
+  const byId = new Map(allParking(trip).map(([, p]) => [p.id, p]));
+  for (const p of byId.values()) if (p._dirty && sentAt.get(p.id) === p.updatedAt) delete p._dirty;
+  for (const { n, ...r } of remote) {
+    const local = byId.get(r.id);
+    if (local) {
+      if (!local._dirty && (r.updatedAt || '') > (local.updatedAt || '')) Object.assign(local, r);
+      continue;
+    }
+    const day = trip.days.find((d) => d.n === n);
+    if (day) (day.parking ||= []).push(r);
+  }
 }
 
 export function statusText() {

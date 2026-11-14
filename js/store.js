@@ -1,4 +1,5 @@
 import { normalizeStops } from './trip.js';
+import { normalizeLedger, DEFAULT_NAMES, PARTIES } from './ledger.js';
 
 // 資料只存在這支手機的瀏覽器：行程（由 data/trip.json 初始化）＋帳本＋中繼資料
 const KEY = 'hokuriku-trip-v1';
@@ -8,7 +9,8 @@ export const DEFAULT_CATEGORIES = ['餐飲', '租車', '油費', '高速費', '�
 
 function defaultLedger() {
   return {
-    names: { me: '我', mate: '旅伴' },
+    names: { ...DEFAULT_NAMES },
+    parties: [...PARTIES],
     cashRate: 0.22,
     cardRate: 0.22,
     categories: DEFAULT_CATEGORIES.map((name, i) => ({ id: 'k' + (i + 1), name })),
@@ -49,13 +51,14 @@ export async function load() {
   const saved = readLocal();
   if (saved && saved.trip) {
     state.trip = normalizeStops(saved.trip);
-    state.ledger = { ...defaultLedger(), ...saved.ledger };
+    state.ledger = normalizeLedger({ ...defaultLedger(), ...saved.ledger });
     state.meta = { ...state.meta, ...saved.meta };
   } else {
     state.trip = normalizeStops(await fetchSeed());
     state.ledger = defaultLedger();
   }
   await fillParking(state.trip);
+  await trackParking(state.trip);
   writeLocal();
   try { navigator.storage?.persist?.(); } catch { /* 不支援就算了 */ }
 }
@@ -79,6 +82,29 @@ async function fillParking(trip) {
   }
   const atOf = new Map(seedParking.map((p) => [p.id, p.at]));
   for (const p of noAt) p.at = atOf.get(p.id) || '';
+}
+
+// 開始同步前，手機上已經改過的停車點沒有 updatedAt，和 data/trip.json 比對後補上並標成待上傳；
+// 刪掉的補一筆刪除記號。沒改過的不送，其他裝置改過的會蓋過來。做過一次就記 parkingTracked
+const PARKING_KEYS = ['at', 'name', 'ja', 'address', 'fee', 'note', 'source'];
+async function trackParking(trip) {
+  if (trip.parkingTracked || !trip.parkingSeeded) return;
+  let seed;
+  try { seed = await fetchSeed(); } catch { return; }
+  const now = new Date().toISOString();
+  for (const d of trip.days) {
+    const list = d.parking ||= [];
+    const seedList = seed.days.find((x) => x.n === d.n)?.parking || [];
+    for (const p of list) {
+      if (p.updatedAt) continue;
+      const orig = seedList.find((x) => x.id === p.id);
+      if (!orig || PARKING_KEYS.some((k) => (p[k] || '') !== (orig[k] || ''))) Object.assign(p, { updatedAt: now, _dirty: true });
+    }
+    for (const orig of seedList) {
+      if (!list.some((x) => x.id === orig.id)) list.push({ ...orig, deleted: true, updatedAt: now, _dirty: true });
+    }
+  }
+  trip.parkingTracked = true;
 }
 
 async function fetchSeed() {
@@ -135,9 +161,10 @@ export async function parseBackup(file) {
 export async function restoreBackup(data) {
   const trip = normalizeStops(data.trip);
   await fillParking(trip);
+  await trackParking(trip);
   commit((s) => {
     s.trip = trip;
-    s.ledger = { ...defaultLedger(), ...data.ledger };
+    s.ledger = normalizeLedger({ ...defaultLedger(), ...structuredClone(data.ledger || {}) });
     s.meta.exportedAt = data.exportedAt || null;
   });
 }

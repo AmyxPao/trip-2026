@@ -2,7 +2,7 @@
 import { state } from './store.js';
 import { buildXlsx } from './xlsx.js';
 import { md, weekday } from './trip.js';
-import { summarize, toTWD, meShare, liveEntries } from './ledger.js';
+import { summarize, toTWD, liveEntries, PARTIES, DEFAULT_NAMES, customPcts } from './ledger.js';
 
 const BASIS = { twd: '台幣', cash: '現金匯率', bill: '帳單金額', card: '同日同卡反推', est: '刷卡粗估' };
 
@@ -23,7 +23,7 @@ export function exportExcel() {
 
   const stopName = (id) => trip.stops.find((s) => s.id === id)?.name || '';
   const parking = [['天', '日期', '放在哪一站下面', '停車場', '日文名稱', '地址', '停車費', '備註', '資料來源'],
-    ...trip.days.flatMap((d) => (d.parking || []).map((p) => [`DAY ${d.n}`, dayLabel(d.date), stopName(p.at), p.name, p.ja, p.address, p.fee, p.note, p.source]))];
+    ...trip.days.flatMap((d) => (d.parking || []).filter((p) => !p.deleted).map((p) => [`DAY ${d.n}`, dayLabel(d.date), stopName(p.at), p.name, p.ja, p.address, p.fee, p.note, p.source]))];
 
   const lodgeKeys = [...new Set(trip.lodging.flatMap((l) => Object.keys(l)))];
   const lodging = [['項目', ...trip.lodging.map((l) => l['名稱'] || '')],
@@ -31,27 +31,34 @@ export function exportExcel() {
 
   const checklist = [['分類', '事項', '完成', '備註'], ...trip.checklist.map((c) => [c.cat, c.text, c.done ? 'Y' : 'N', c.note])];
 
-  const who = (p) => ledger.names[p] || (p === 'me' ? '我' : '旅伴');
+  const who = (p) => ledger.names[p] || DEFAULT_NAMES[p];
+  const splitText = (e) => {
+    if (e.split?.type !== 'custom') return '均分（照人頭）';
+    const c = customPcts(e.split);
+    return PARTIES.map((p) => `${who(p)} ${Math.round(c[p] * 10) / 10}%`).join(' / ');
+  };
   const catName = (id) => ledger.categories.find((c) => c.id === id)?.name || '';
   const method = (m) => (m === 'cash' ? '現金' : ledger.cards.find((c) => c.id === m)?.name || '');
   const dateText = (d) => (d === 'pre' ? '出發前' : (() => { const day = trip.days.find((x) => x.date === d); return day ? `DAY ${day.n} ${dayLabel(d)}` : d; })());
   const order = (d) => (d === 'pre' ? '0' : d);
   const entries = liveEntries(ledger).slice().sort((a, b) => order(a.date).localeCompare(order(b.date)));
-  const book = [['日期', '分類', '金額', '幣別', '換算台幣', '換算依據', '誰付', '付款方式', `${who('me')}負擔`, '備註', '帳單台幣'],
+  const book = [['日期', '分類', '金額', '幣別', '換算台幣', '換算依據', '誰付', '付款方式', '分攤', '備註', '帳單台幣'],
     ...entries.map((e) => {
       const { twd, basis } = toTWD(ledger, e);
       return [dateText(e.date), catName(e.cat), e.amount, e.currency === 'JPY' ? '日圓' : '台幣', Math.round(twd), BASIS[basis] || '',
-        who(e.payer), method(e.method), `${Math.round(meShare(e) * 100)}%`, e.note, e.billTWD || ''];
+        who(e.payer), method(e.method), splitText(e), e.note, e.billTWD || ''];
     })];
 
   const sum = summarize(ledger);
-  const b = sum.balance;
-  const settle = [['項目', who('me'), who('mate')],
-    ['墊付（台幣）', Math.round(sum.paid.me), Math.round(sum.paid.mate)],
-    ['應負擔（台幣）', Math.round(sum.owe.me), Math.round(sum.owe.mate)],
-    ['差額', Math.round(sum.paid.me - sum.owe.me), Math.round(sum.paid.mate - sum.owe.mate)],
+  const transfers = sum.transfers.length
+    ? sum.transfers.map((t) => `${who(t.from)}要給${who(t.to)} NT$ ${t.amount.toLocaleString('zh-TW')}`)
+    : ['三方扯平'];
+  const settle = [['項目', ...PARTIES.map(who)],
+    ['墊付（台幣）', ...PARTIES.map((p) => Math.round(sum.paid[p]))],
+    ['應負擔（台幣）', ...PARTIES.map((p) => Math.round(sum.owe[p]))],
+    ['淨額（正＝別人要給他）', ...PARTIES.map((p) => Math.round(sum.net[p]))],
     [],
-    ['結算', b === 0 ? '兩邊扯平' : b > 0 ? `${who('mate')}要給${who('me')} NT$ ${Math.abs(b).toLocaleString('zh-TW')}` : `${who('me')}要給${who('mate')} NT$ ${Math.abs(b).toLocaleString('zh-TW')}`],
+    ...transfers.map((v, i) => [i === 0 ? '結算' : '', v]),
     ['日圓支出', Math.round(sum.jpy)], ['台幣支出', Math.round(sum.twdNative)], ['合計（換算台幣）', Math.round(sum.total)],
     ['現金匯率', ledger.cashRate], ['刷卡粗估匯率', ledger.cardRate],
     ...(sum.estimates ? [['提醒', `其中 ${sum.estimates} 筆刷卡是粗估，帳單出來補上後金額會變`]] : [])];

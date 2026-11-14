@@ -1,8 +1,8 @@
-// 分帳：記一筆、總帳、分類帳、日期帳、分帳帳目、設定
+// 分帳：記帳、總帳、分類帳、日期帳、分帳帳目、設定
 import { state, commit, uid, needsBackup } from './store.js';
 import { icon } from './icons.js';
 import { esc, stamp, openSheet, closeSheet, confirmTap, toast } from './ui.js';
-import { summarize, toTWD, fmtTWD, fmtJPY, fmtAmount, meShare, liveEntries } from './ledger.js';
+import { summarize, toTWD, fmtTWD, fmtJPY, fmtAmount, liveEntries, PARTIES, DEFAULT_NAMES, customPcts } from './ledger.js';
 import { sync, enabled as syncOn, configure, run as runSync, schedule, statusText } from './sync.js';
 import { phase, todayDay, md, weekday } from './trip.js';
 
@@ -17,7 +17,15 @@ const touch = (e) => { e.updatedAt = now(); e._dirty = true; return e; };
 const touchSettings = (ledger) => { ledger.settingsUpdatedAt = now(); ledger._settingsDirty = true; };
 const catName = (id) => L().categories.find((c) => c.id === id)?.name || '未分類';
 const methodName = (m) => (m === 'cash' ? '現金' : L().cards.find((c) => c.id === m)?.name || '已刪除的卡');
-const who = (p) => L().names[p] || (p === 'me' ? '我' : '旅伴');
+const who = (p) => L().names[p] || DEFAULT_NAMES[p];
+// 三方各自的印章：字、顏色
+const STAMP = { me: ['鮑', 'me'], zhao: ['趙', 'mate'], aunts: ['姨', 'call'] };
+const pstamp = (p, size, seed = p, extra = {}) => stamp(STAMP[p][0], STAMP[p][1], { size, seed, ...extra });
+const splitText = (split) => {
+  if (split?.type !== 'custom') return '';
+  const c = customPcts(split);
+  return ` · ${PARTIES.map((p) => `${who(p)} ${Math.round(c[p] * 10) / 10}%`).join('、')}`;
+};
 
 function dateLabel(d) {
   if (d === 'pre') return '出發前';
@@ -27,17 +35,14 @@ function dateLabel(d) {
 function dateOrder(d) { return d === 'pre' ? '0' : d; }
 
 function payerStamp(e, size = 30) {
-  return stamp(e.payer === 'me' ? '我' : '伴', e.payer === 'me' ? 'me' : 'mate', {
-    size, seed: e.id, label: `${who(e.payer)}付`, cls: ui.stampIn === e.id ? 'stamp-in' : '',
-  });
+  return pstamp(e.payer, size, e.id, { label: `${who(e.payer)}付`, cls: ui.stampIn === e.id ? 'stamp-in' : '' });
 }
 
 function entryRow(e) {
   const { twd, basis } = toTWD(L(), e);
   const conv = e.currency === 'JPY'
     ? `<span class="en-twd num">≈ ${fmtTWD(twd)}${basis === 'est' ? stamp('估', 'sec', { size: 22, seed: e.id + 'r', label: '粗估匯率' }) : basis === 'bill' || basis === 'card' ? stamp('実', 'me', { size: 22, seed: e.id + 'r', label: '實際匯率', cls: ui.stampIn === e.id ? 'stamp-in' : '' }) : ''}</span>` : '';
-  const sh = meShare(e);
-  const split = sh === 0.5 ? '' : sh === 1 ? ` · 全算${who('me')}` : sh === 0 ? ` · 全算${who('mate')}` : ` · ${who('me')} ${Math.round(sh * 100)}%`;
+  const split = splitText(e.split);
   return `<li><button class="entry" data-act="edit-entry" data-id="${e.id}">
     <span class="en-stamp">${payerStamp(e)}</span>
     <span class="en-body"><span class="en-cat">${esc(catName(e.cat))}${e.note ? `<span class="en-note">${esc(e.note)}</span>` : ''}</span>
@@ -47,15 +52,16 @@ function entryRow(e) {
 }
 
 function settleBlock(sum) {
-  const b = sum.balance;
   const n = liveCount();
-  if (!n) return `<section class="settle empty-settle"><p class="settle-who">還沒有任何一筆帳</p><p class="settle-hint">停好車、結完帳，按右下角「記一筆」，幾秒就記完。</p></section>`;
+  if (!n) return `<section class="settle empty-settle"><p class="settle-who">還沒有任何一筆帳</p><p class="settle-hint">停好車、結完帳，按右下角「記帳」，幾秒就記完。</p></section>`;
   const settled = L().settled;
-  const done = settled && settled.balance === b;
-  const line = b === 0 ? '兩邊剛好扯平' : b > 0 ? `${esc(who('mate'))}要給${esc(who('me'))}` : `${esc(who('me'))}要給${esc(who('mate'))}`;
+  const done = settled && settled.key === sum.key;
+  const lines = sum.transfers.length
+    ? sum.transfers.map((t) => `<p class="settle-who">${esc(who(t.from))}要給${esc(who(t.to))}</p>
+    <p class="settle-amt num">${fmtTWD(t.amount)}</p>`).join('')
+    : `<p class="settle-who">三方剛好扯平</p><p class="settle-amt num">NT$ 0</p>`;
   return `<section class="settle ${done ? 'is-done' : ''}">
-    <p class="settle-who">${line}</p>
-    <p class="settle-amt num">${b === 0 ? 'NT$ 0' : fmtTWD(Math.abs(b))}</p>
+    ${lines}
     ${sum.estimates ? `<p class="settle-hint">其中 ${sum.estimates} 筆刷卡是用 ${L().cardRate} 粗估，帳單出來補上台幣後金額會再變。</p>` : ''}
     ${settled && !done ? `<p class="settle-hint">${md(settled.at.slice(0, 10))} 結清後又有新的帳，差額已重新計算。</p>` : ''}
     ${done ? `<span class="settle-stamp">${stamp('済', 'ok', { size: 76, seed: 'settled', label: '已結清', cls: ui.stampIn === 'settled' ? 'stamp-in' : '' })}</span>` : ''}
@@ -94,13 +100,16 @@ function viewDate(sum) {
 }
 
 function viewSplit(sum) {
-  const row = (p) => `<tr><th scope="row">${stamp(p === 'me' ? '我' : '伴', p, { size: 26, seed: p })}${esc(who(p))}</th>
-    <td class="num">${fmtTWD(sum.paid[p])}</td><td class="num">${fmtTWD(sum.owe[p])}</td><td class="num">${fmtTWD(sum.paid[p] - sum.owe[p])}</td></tr>`;
+  const row = (p) => `<tr><th scope="row">${pstamp(p, 26)}${esc(who(p))}</th>
+    <td class="num">${fmtTWD(sum.paid[p])}</td><td class="num">${fmtTWD(sum.owe[p])}</td><td class="num">${fmtTWD(sum.net[p])}</td></tr>`;
   const settled = L().settled;
-  return `<table class="split"><thead><tr><th></th><th scope="col">墊付</th><th scope="col">應負擔</th><th scope="col">差額</th></tr></thead>
-    <tbody>${row('me')}${row('mate')}</tbody></table>
-    <p class="split-note">應負擔＝每一筆依分攤比例算出的份額（預設對半）。差額為正的一方，要從另一方收回這個金額。</p>
-    ${liveCount() ? `<div class="split-act">${settled && settled.balance === sum.balance
+  const pay = sum.transfers.map((t) => `<li>${esc(who(t.from))} → ${esc(who(t.to))}<b class="num">${fmtTWD(t.amount)}</b></li>`).join('');
+  return `<table class="split"><thead><tr><th></th><th scope="col">墊付</th><th scope="col">應負擔</th><th scope="col">淨額</th></tr></thead>
+    <tbody>${PARTIES.map(row).join('')}</tbody></table>
+    <p class="split-note">應負擔＝每一筆依分攤比例算出的份額（均分照人頭：鮑 20%、趙 20%、阿姨們 60%）。淨額為正，代表別人要給他；為負，代表他要給別人。</p>
+    <h3 class="split-h">誰該付給誰</h3>
+    ${pay ? `<ul class="transfers">${pay}</ul>` : '<p class="split-note">三方剛好扯平，不用互相給錢。</p>'}
+    ${liveCount() ? `<div class="split-act">${settled && settled.key === sum.key
       ? `<button class="btn" data-act="unsettle">取消結清標記</button>`
       : `<button class="btn primary" data-act="settle">已經給完錢了，標記結清</button>`}</div>` : ''}`;
 }
@@ -114,7 +123,7 @@ export function renderLedger() {
     ${syncLine()}
     ${liveCount() ? `<div class="seg" role="tablist">${TABS.map(([k, l]) => `<button role="tab" aria-selected="${ui.tab === k}" data-act="ledger-tab" data-tab="${k}">${l}</button>`).join('')}</div>
     <div class="ledger-body">${body}</div>` : ''}
-    <button class="fab" data-act="new-entry">${icon('plus')}記一筆</button>`;
+    <button class="fab" data-act="new-entry">${icon('plus')}記帳</button>`;
   return html;
 }
 export function afterLedger() { if (ui.stampIn) setTimeout(() => { ui.stampIn = null; }, 50); }
@@ -123,13 +132,13 @@ export function setLedgerTab(t) { ui.tab = t; }
 export function settle(on) {
   ui.stampIn = on ? 'settled' : null;
   commit(({ ledger }) => {
-    ledger.settled = on ? { at: new Date().toISOString(), balance: summarize(ledger).balance } : null;
+    ledger.settled = on ? { at: new Date().toISOString(), key: summarize(ledger).key } : null;
     touchSettings(ledger);
   });
   schedule();
 }
 
-// ---------- 記一筆／改一筆 ----------
+// ---------- 記帳／改一筆 ----------
 function defaultDate() {
   const ph = phase(state.trip);
   if (ph === 'during') return todayDay(state.trip).date;
@@ -141,7 +150,7 @@ export function editEntry(id, preset = {}) {
   const led = L();
   const isNew = !id;
   const e = isNew
-    ? { id: uid('e'), date: preset.date || defaultDate(), amount: '', currency: 'JPY', cat: led.categories[0]?.id, payer: 'me', method: 'cash', split: { type: 'half', me: 50 }, note: '', billTWD: null }
+    ? { id: uid('e'), date: preset.date || defaultDate(), amount: '', currency: 'JPY', cat: led.categories[0]?.id, payer: 'me', method: 'cash', split: { type: 'even' }, note: '', billTWD: null }
     : structuredClone(led.entries.find((x) => x.id === id));
   const dates = ['pre', ...state.trip.days.map((d) => d.date)];
   if (!dates.includes(e.date)) dates.push(e.date);
@@ -153,11 +162,16 @@ export function editEntry(id, preset = {}) {
   const top = ranked.slice(0, 4);
   if (!top.some((c) => c.id === e.cat)) top[3] = ranked.find((c) => c.id === e.cat) || top[3];
   const rest = led.categories.filter((c) => !top.includes(c));
-  const splitLabel = (t, me) => ({ half: '對半', me: `全算${who('me')}`, mate: `全算${who('mate')}`, custom: `${who('me')} ${me}%` }[t] || '對半');
-  const summary = () => `${methodName(e.method)} · ${dateLabel(e.date).split(' · ')[0]} · ${splitLabel(e.split.type, e.split.me)}`;
+  const cp = customPcts(e.split);
+  const splitLabel = (t, me, zhao) => {
+    if (t !== 'custom') return '均分';
+    const c = customPcts({ me, zhao });
+    return `${who('me')} ${c.me}%・${who('zhao')} ${c.zhao}%・${who('aunts')} ${c.aunts}%`;
+  };
+  const summary = () => `${methodName(e.method)} · ${dateLabel(e.date).split(' · ')[0]} · ${splitLabel(e.split.type, cp.me, cp.zhao)}`;
 
   openSheet(`
-    <header class="sh-head"><div><h2>${isNew ? '記一筆' : '修改這筆帳'}</h2></div>
+    <header class="sh-head"><div><h2>${isNew ? '記帳' : '修改這筆帳'}</h2></div>
       <button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
     <form class="form" id="entry-form" novalidate>
       <div class="amt-row">
@@ -168,8 +182,7 @@ export function editEntry(id, preset = {}) {
         ${rest.length ? `<button type="button" class="chip-more" id="more-cats">更多（${rest.length}）</button>` : ''}</div>
         ${rest.length ? `<div class="chips" id="rest-cats" hidden>${rest.map((c) => radio('cat', c.id, e.cat, esc(c.name))).join('')}</div>` : ''}</fieldset>
       <fieldset class="f full"><legend>誰先付</legend><div class="chips">
-        ${radio('payer', 'me', e.payer, esc(who('me')), stamp('我', 'me', { size: 24, seed: 'me' }))}
-        ${radio('payer', 'mate', e.payer, esc(who('mate')), stamp('伴', 'mate', { size: 24, seed: 'mate' }))}</div></fieldset>
+        ${PARTIES.map((p) => radio('payer', p, e.payer, esc(who(p)), pstamp(p, 24))).join('')}</div></fieldset>
       <details class="more-opts" ${isNew ? '' : 'open'}>
       <summary><span class="mo-label">付款・日期・怎麼分</span><span class="mo-sum">${esc(summary())}</span><span class="mo-edit">更改</span></summary>
       <div class="more-body">
@@ -185,8 +198,12 @@ export function editEntry(id, preset = {}) {
         <input name="billTWD" inputmode="decimal" value="${e.billTWD ?? ''}" placeholder="還沒出帳就留空，先用 ${led.cardRate} 估">
         <small>補上後，同一天同一張卡的其他筆會改用反推出的匯率重算。</small></label>
       <fieldset class="f full"><legend>怎麼分</legend><div class="chips">
-        ${radio('split', 'half', e.split.type, '對半')}${radio('split', 'me', e.split.type, `全算${esc(who('me'))}`)}${radio('split', 'mate', e.split.type, `全算${esc(who('mate'))}`)}${radio('split', 'custom', e.split.type, '自訂')}</div>
-        <label class="f custom" ${e.split.type === 'custom' ? '' : 'hidden'}><span>${esc(who('me'))}負擔（%）</span><input name="splitMe" type="number" inputmode="numeric" min="0" max="100" value="${e.split.me ?? 50}"></label>
+        ${radio('split', 'even', e.split.type, '均分（照人頭 20/20/60）')}${radio('split', 'custom', e.split.type, '自訂')}</div>
+        <div class="f-row custom" ${e.split.type === 'custom' ? '' : 'hidden'}>
+          <label class="f"><span>${esc(who('me'))}負擔（%）</span><input name="splitMe" type="number" inputmode="decimal" min="0" max="100" step="any" value="${e.split.type === 'custom' ? cp.me : 20}"></label>
+          <label class="f"><span>${esc(who('zhao'))}負擔（%）</span><input name="splitZhao" type="number" inputmode="decimal" min="0" max="100" step="any" value="${e.split.type === 'custom' ? cp.zhao : 20}"></label>
+        </div>
+        <p class="custom split-rest" ${e.split.type === 'custom' ? '' : 'hidden'}></p>
       </fieldset>
       </div></details>
       <label class="f full"><span>備註</span><input name="note" value="${esc(e.note)}" placeholder="例：丸明 燒肉、城端 SA 加油"></label>
@@ -202,12 +219,21 @@ export function editEntry(id, preset = {}) {
       const m = f.method.value;
       f.querySelector('.new-card').hidden = m !== '__new';
       f.querySelector('.bill').hidden = !(cur === 'JPY' && m !== 'cash');
-      f.querySelector('.custom').hidden = f.split.value !== 'custom';
+      const custom = f.split.value === 'custom';
+      d.querySelectorAll('.custom').forEach((x) => { x.hidden = !custom; });
+      const me = Number(f.splitMe.value) || 0;
+      const zhao = Number(f.splitZhao.value) || 0;
+      const rest = Math.round((100 - me - zhao) * 10) / 10;
+      const rp = d.querySelector('.split-rest');
+      rp.textContent = `${who('aunts')}負擔 ${rest}%（自動＝100 − ${who('me')} − ${who('zhao')}）`;
+      rp.classList.toggle('is-bad', rest < 0);
       const m2 = m === '__new' ? (f.newCard.value.trim() || '新卡片') : methodName(m);
-      f.querySelector('.mo-sum').textContent = `${m2} · ${dateLabel(f.date.value).split(' · ')[0]} · ${splitLabel(f.split.value, f.splitMe.value)}`;
+      f.querySelector('.mo-sum').textContent = `${m2} · ${dateLabel(f.date.value).split(' · ')[0]} · ${splitLabel(f.split.value, f.splitMe.value, f.splitZhao.value)}`;
     };
     d.querySelector('#more-cats')?.addEventListener('click', (ev) => { d.querySelector('#rest-cats').hidden = false; ev.currentTarget.remove(); });
     f.addEventListener('change', sync);
+    f.addEventListener('input', sync);
+    sync();
     if (isNew) setTimeout(() => f.amount.focus(), 220);
     f.addEventListener('submit', (ev) => {
       ev.preventDefault();
@@ -225,9 +251,15 @@ export function editEntry(id, preset = {}) {
       const billRaw = String(f.billTWD.value).replace(/[,\s]/g, '');
       const bill = f.currency.value === 'JPY' && method !== 'cash' && billRaw ? Number(billRaw) : null;
       if (billRaw && !(bill > 0) && !f.querySelector('.bill').hidden) { err.textContent = '帳單台幣要是大於 0 的數字，還沒出帳就留空。'; err.hidden = false; return; }
+      const splitMe = Number(f.splitMe.value) || 0;
+      const splitZhao = Number(f.splitZhao.value) || 0;
+      if (f.split.value === 'custom') {
+        if (splitMe < 0 || splitZhao < 0 || splitMe > 100 || splitZhao > 100) { err.textContent = '負擔比例要在 0 到 100 之間。'; err.hidden = false; return; }
+        if (splitMe + splitZhao > 100) { err.textContent = `${who('me')}加${who('zhao')}的比例不能超過 100%，目前是 ${Math.round((splitMe + splitZhao) * 10) / 10}%。`; err.hidden = false; return; }
+      }
       const next = {
         ...e, amount, currency: f.currency.value, cat: f.cat.value, payer: f.payer.value, method, date: f.date.value,
-        split: { type: f.split.value, me: Number(f.splitMe.value) || 0 }, note: f.note.value.trim(), billTWD: bill,
+        split: f.split.value === 'custom' ? { type: 'custom', me: splitMe, zhao: splitZhao } : { type: 'even' }, note: f.note.value.trim(), billTWD: bill,
       };
       const becameReal = bill && !(e.billTWD > 0);
       ui.stampIn = isNew || becameReal ? next.id : null;
@@ -274,8 +306,12 @@ export function ledgerSettings() {
     <header class="sh-head"><div><h2>分帳設定</h2></div><button class="icon-btn" data-close aria-label="關閉">${icon('close')}</button></header>
     <form class="form" id="set-form" novalidate>
       <div class="f-row">
-        <label class="f"><span>我的稱呼</span><input name="me" value="${esc(led.names.me)}"></label>
-        <label class="f"><span>旅伴的稱呼</span><input name="mate" value="${esc(led.names.mate)}"></label>
+        <label class="f"><span>第一位的稱呼</span><input name="me" value="${esc(led.names.me)}"></label>
+        <label class="f"><span>第二位的稱呼</span><input name="zhao" value="${esc(led.names.zhao)}"></label>
+      </div>
+      <div class="f-row">
+        <label class="f"><span>第三方的稱呼</span><input name="aunts" value="${esc(led.names.aunts)}"></label>
+        <span></span>
       </div>
       <div class="f-row">
         <label class="f"><span>現金匯率（1 日圓＝台幣）</span><input name="cashRate" inputmode="decimal" value="${led.cashRate}"></label>
@@ -284,21 +320,14 @@ export function ledgerSettings() {
       <fieldset class="f full"><legend>分類</legend><ul class="manage" id="cats">${catRows}</ul>
         <div class="add-inline"><input id="new-cat" placeholder="新分類名稱，例：伴手禮"><button type="button" class="btn" id="add-cat">${icon('plus')}新增</button></div></fieldset>
       <fieldset class="f full"><legend>信用卡</legend>${led.cards.length ? `<ul class="manage" id="cards">${cardRows}</ul>` : '<p class="muted">還沒有卡片。記帳時在「付款方式」選「新增一張卡」。</p>'}</fieldset>
-      <fieldset class="f full sync-set"><legend>雲端同步（Google 試算表）</legend>
-        <p class="muted">帳會存到你的 Google 試算表，換瀏覽器或換手機都能看到同一本帳。沒有網路時記的帳，連上後自動補傳。</p>
-        <label class="f"><span>網頁應用程式網址</span><input name="syncUrl" type="url" inputmode="url" autocomplete="off" value="${esc(sync.url)}" placeholder="https://script.google.com/macros/s/…/exec"></label>
-        <label class="f"><span>密語（和同步程式裡的 SECRET 一樣）</span><input name="syncSecret" autocomplete="off" value="${esc(sync.secret)}"></label>
+      <fieldset class="f full sync-set"><legend>雲端同步</legend>
+        <p class="muted">帳和停車點會存到同步伺服器，換瀏覽器或換手機都能看到同一份。沒有網路時改的，連上後自動補傳。</p>
+        <label class="f"><span>同步網址</span><input name="syncUrl" type="url" inputmode="url" autocomplete="off" value="${esc(sync.url)}" placeholder="https://…/api/sync"></label>
+        <label class="f"><span>密語（和伺服器設定的一樣）</span><input name="syncSecret" autocomplete="off" value="${esc(sync.secret)}"></label>
         <div class="sh-actions"><button type="button" class="btn" id="sync-connect">${icon('cloud')}${syncOn() ? '儲存並同步' : '連線並同步'}</button>
           ${syncOn() ? '<button type="button" class="link danger-link" id="sync-off">停用同步</button>' : ''}</div>
         <p class="sync-msg" role="status">${esc(statusText())}</p>
-        <details class="how"><summary>第一次怎麼設定？</summary><ol>
-          <li>建一個新的 Google 試算表，選「擴充功能 → Apps Script」。</li>
-          <li>把同步程式整份貼上，取代原本的內容：<button type="button" class="link" id="copy-gs">複製同步程式</button></li>
-          <li>把程式第一段的 <code>SECRET</code> 改成你自己的一組密語，存檔。</li>
-          <li>按「部署 → 新增部署作業」，類型選「網頁應用程式」，執行身分選「我」、誰可以存取選「任何人」，按部署並完成授權。</li>
-          <li>複製「網頁應用程式網址」，貼到上面，填同一組密語，按「連線並同步」。</li>
-          <li>其他瀏覽器或手機：同樣貼上網址和密語就好，不用再部署。</li>
-        </ol><p class="muted">網址和密語只存在這個瀏覽器，不會放進備份檔，也不會放到網站上。</p></details>
+        <p class="muted">網址和密語只存在這個瀏覽器，不會放進備份檔，也不會放到網站上。</p>
       </fieldset>
       <p class="form-err" role="alert" hidden></p>
       <footer class="sh-foot"><span></span><button type="submit" class="btn primary">儲存設定</button></footer>
@@ -346,7 +375,7 @@ export function ledgerSettings() {
       if (!(cash > 0 && cash < 1 && card > 0 && card < 1)) { err.textContent = '匯率要填 1 日圓換多少台幣，例如 0.22。'; err.hidden = false; return; }
       commit(({ ledger }) => {
         touchSettings(ledger);
-        ledger.names = { me: f.me.value.trim() || '我', mate: f.mate.value.trim() || '旅伴' };
+        ledger.names = { me: f.me.value.trim() || DEFAULT_NAMES.me, zhao: f.zhao.value.trim() || DEFAULT_NAMES.zhao, aunts: f.aunts.value.trim() || DEFAULT_NAMES.aunts };
         ledger.cashRate = cash;
         ledger.cardRate = card;
         d.querySelectorAll('[data-rename]').forEach((inp) => {
@@ -364,8 +393,8 @@ export function ledgerSettings() {
     d.querySelector('#sync-connect').addEventListener('click', async () => {
       const url = f.syncUrl.value.trim();
       const secret = f.syncSecret.value.trim();
-      if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) { msg.textContent = '網址要是 Apps Script 的「網頁應用程式網址」，開頭是 https://script.google.com/macros/s/'; return; }
-      if (!secret) { msg.textContent = '請填密語，要和同步程式裡的 SECRET 一樣。'; f.syncSecret.focus(); return; }
+      if (!/^https:\/\/.+\/api\/sync$/.test(url)) { msg.textContent = '網址要是 https 開頭、/api/sync 結尾，例：https://trip.example.com/api/sync'; f.syncUrl.focus(); return; }
+      if (!secret) { msg.textContent = '請填密語，要和伺服器設定的一樣。'; f.syncSecret.focus(); return; }
       configure(url, secret);
       msg.textContent = '連線中…';
       await runSync();
@@ -373,17 +402,8 @@ export function ledgerSettings() {
     });
     d.querySelector('#sync-off')?.addEventListener('click', () => {
       configure('', '');
-      toast('已停用雲端同步；這個瀏覽器裡的帳都還在');
+      toast('已停用雲端同步；這個瀏覽器裡的資料都還在');
       ledgerSettings();
-    });
-    d.querySelector('#copy-gs').addEventListener('click', async (ev) => {
-      try {
-        const code = await (await fetch('sync/ledger-sync.gs')).text();
-        await navigator.clipboard.writeText(code);
-        ev.target.textContent = '已複製';
-      } catch {
-        window.open('sync/ledger-sync.gs', '_blank');
-      }
     });
   });
 }
