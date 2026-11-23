@@ -86,28 +86,19 @@ export function normalizeLedger(ledger) {
   return ledger;
 }
 
-// 淨額（正＝別人欠他、負＝他欠別人）換成「誰付給誰多少」，最多 2 筆
+// 淨額（正＝別人欠他、負＝他欠別人）換成「誰付給誰多少」。
+// 錢一律經過趙（HUB）：要出錢的人把錢給趙，趙再轉給代墊的人。先列給趙的，再列趙轉出的。
+const HUB = 'zhao';
 export function transfersOf(net) {
-  const cred = [];
-  const debt = [];
+  const toHub = [];
+  const fromHub = [];
   for (const p of PARTIES) {
+    if (p === HUB) continue;
     const v = Math.round(net[p]);
-    if (v > 0) cred.push({ p, v }); else if (v < 0) debt.push({ p, v: -v });
+    if (v < 0) toHub.push({ from: p, to: HUB, amount: -v });
+    else if (v > 0) fromHub.push({ from: HUB, to: p, amount: v });
   }
-  cred.sort((a, b) => b.v - a.v);
-  debt.sort((a, b) => b.v - a.v);
-  const out = [];
-  let i = 0;
-  let j = 0;
-  while (i < cred.length && j < debt.length) {
-    const amt = Math.min(cred[i].v, debt[j].v);
-    if (amt > 0) out.push({ from: debt[j].p, to: cred[i].p, amount: amt });
-    cred[i].v -= amt;
-    debt[j].v -= amt;
-    if (cred[i].v === 0) i++;
-    if (debt[j].v === 0) j++;
-  }
-  return out;
+  return [...toHub, ...fromHub];
 }
 
 export function summarize(ledger) {

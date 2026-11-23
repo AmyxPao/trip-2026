@@ -108,6 +108,7 @@ function viewSplit(sum) {
     <tbody>${PARTIES.map(row).join('')}</tbody></table>
     <p class="split-note">應負擔＝每一筆依分攤比例算出的份額（均分照人頭：鮑 20%、趙 20%、阿姨們 60%）。淨額為正，代表別人要給他；為負，代表他要給別人。</p>
     <h3 class="split-h">誰該付給誰</h3>
+    <p class="split-note">錢統一交給趙，再由趙轉給代墊的人。</p>
     ${pay ? `<ul class="transfers">${pay}</ul>` : '<p class="split-note">三方剛好扯平，不用互相給錢。</p>'}
     ${liveCount() ? `<div class="split-act">${settled && settled.key === sum.key
       ? `<button class="btn" data-act="unsettle">取消結清標記</button>`
